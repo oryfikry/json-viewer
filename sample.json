@@ -1,0 +1,37 @@
+{
+    "name": "Advanced JSON Viewer",
+    "version": "1.0.0",
+    "description": "A tool for viewing and editing JSON data",
+    "features": [
+        "Syntax highlighting",
+        "Tree view",
+        "JSON validation",
+        "Format fixing",
+        "Node editing"
+    ],
+    "settings": {
+        "theme": "light",
+        "autoFormat": true,
+        "showLineNumbers": true,
+        "maxDepth": 10
+    },
+    "examples": {
+        "simple": "Just a string",
+        "number": 12345,
+        "boolean": true,
+        "null": null,
+        "multiline": "This is a\nmulti-line\nstring example"
+    },
+    "contributors": [
+        {
+            "name": "Jane Doe",
+            "email": "jane@example.com",
+            "role": "Developer"
+        },
+        {
+            "name": "John Smith",
+            "email": "john@example.com",
+            "role": "Designer"
+        }
+    ]
+} 

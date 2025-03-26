@@ -1,0 +1,92 @@
+.json-textarea {
+    height: 640px;
+}
+.json-input {
+    font-family: monospace;
+    resize: vertical;
+  }
+  .node-label {
+    font-weight: bold;
+  }
+  .btn-sm {
+    margin: 2px;
+  }
+  .card {
+    margin-bottom: 20px;
+  }
+  .array-item {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .object-property {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .editor-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: white;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 15px;
+    padding: 8px 0;
+  }
+  .CodeMirror {
+    height: auto;
+    min-height: 250px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .collapsible-container {
+    position: relative;
+  }
+  .toggle-btn {
+    position: absolute;
+    left: -24px;
+    top: 2px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  .toggle-btn:hover {
+    background-color: #e0e0e0;
+  }
+  .collapsed > .collapsible-content {
+    display: none;
+  }
+  .collapsed > .object-summary, 
+  .collapsed > .array-summary {
+    display: inline-block;
+  }
+  .object-summary, 
+  .array-summary {
+    display: none;
+    color: #6c757d;
+    font-style: italic;
+    margin-left: 5px;
+  }
+  .error-line {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+  .error-location {
+    border-bottom: 2px solid red;
+  }
+  .btn-action {
+    width: 100%;
+  }
+.CodeMirror-scroll{
+    height: 500px;
+}
+
+#feedback{
+    margin-top: 10px;
+}

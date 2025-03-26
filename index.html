@@ -1,51 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced JSON Viewer</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Nested JSON Editor</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- CodeMirror for line numbers -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+  <link rel="stylesheet" href="custom.css">
 </head>
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">GT Advanced JSON Viewer</h1>
-        
-        <div class="card mb-4">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-content" type="button" role="tab" aria-controls="text-content" aria-selected="true">Editor</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="viewer-tab" data-bs-toggle="tab" data-bs-target="#viewer-content" type="button" role="tab" aria-controls="viewer-content" aria-selected="false">Viewer</button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="text-content" role="tabpanel" aria-labelledby="text-tab">
-                        <div id="json-editor" class="code-editor"></div>
-                        <div id="validation-message"></div>
-                        <div class="btn-toolbar mt-3">
-                            <button id="validate-json-btn" class="btn btn-primary me-2">Validate</button>
-                            <button id="format-json-btn" class="btn btn-secondary me-2">Format</button>
-                            <button id="fix-json-btn" class="btn btn-warning me-2">Fix Format</button>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="viewer-content" role="tabpanel" aria-labelledby="viewer-tab">
-                        <div id="json-tree"></div>
-                        <button id="add-btn" class="btn btn-success mt-3">Add Node</button>
-                    </div>
-                </div>
-            </div>
+  <div class="container mt-4 mb-5">
+    <h1 class="display-5 mb-4">Dynamic Nested JSON Editor</h1>
+    
+    <div class="row">
+      <div class="col-md-10">
+        <div class="card json-textarea">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-braces"></i> JSON Input</h5>
+          </div>
+          <div class="card-body text-area-container">
+            <!-- Replace textarea with CodeMirror container -->
+            <div id="jsonInputContainer"></div>
+            <div id="feedback" class="mt-2 p-2 rounded"></div>
+          </div>
         </div>
+      </div>
+      
+      <div class="col-md-2">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-tools"></i> Actions</h5>
+          </div>
+          <div class="card-body">
+            <button id="formatBtn" class="btn btn-action btn-outline-primary me-2 mt-1"><i class="bi bi-code-square"></i> Format JSON</button>
+            <button id="clearBtn" class="btn btn-action btn-outline-danger mt-1"><i class="bi bi-trash"></i> Clear</button>
+            <button id="sampleBtn" class="btn btn-action btn-outline-secondary mt-1"><i class="bi bi-arrow-repeat"></i> Load Sample</button>
+            <button id="expandAllBtn" class="btn btn-action btn-outline-info mt-1"><i class="bi bi-arrows-expand"></i> Expand All</button>
+            <button id="collapseAllBtn" class="btn btn-action btn-outline-info mt-1"><i class="bi bi-arrows-collapse"></i> Collapse All</button>
+          </div>
+        </div>
+      </div>
     </div>
+    
+    <div class="card mt-4">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Visual Editor</h5>
+      </div>
+      <div class="card-body" id="editor">
+        <!-- Editor will be rendered here -->
+      </div>
+    </div>
+    
+    <div class="card mt-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Help</h5>
+      </div>
+      <div class="card-body">
+        <p><i class="bi bi-dot"></i> <strong>Editing:</strong> Click on any value to edit it directly.</p>
+        <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Use the "Add Item" button to add to arrays, or fill the key/value form at the bottom of objects.</p>
+        <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Click the delete button next to any property or array item to remove it.</p>
+        <p><i class="bi bi-dot"></i> <strong>Types:</strong> The editor tries to detect the type of values automatically. Numbers, booleans, and null values are displayed with colored type indicators.</p>
+        <p><i class="bi bi-dot"></i> <strong>Collapsing:</strong> Click the triangle icon to expand or collapse nested objects and arrays.</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="code-editor.js"></script>
-    <script src="script.js"></script>
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- CodeMirror for line numbers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.min.js"></script>
+
+  <!-- Include the editor plugin -->
+  <script src="DynamicJSONEditor.js"></script>
+  <script>
+    // Sample data provided by the user.
+    var sampleData = [
+      {
+        "types": ["local","date","image"],
+        "attractionId": "2311",
+        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52+(2).jpeg",
+        "calendarConfiguration": {
+          "days": [{
+            "monday": {"demand": "", "price": "", "status": "unavailable"},
+            "tuesday": {"demand": "non_peak", "price": "", "status": "available"},
+            "wednesday": {"demand": "non_peak", "price": "", "status": "available"},
+            "thursday": {"demand": "non_peak", "price": "", "status": "available"},
+            "friday": {"demand": "non_peak", "price": "", "status": "available"},
+            "saturday": {"demand": "peak", "price": "", "status": "available"},
+            "sunday": {"demand": "peak", "price": "", "status": "available"}
+          }],
+          "dates": [
+            {"date": "2025-03-15", "override": {"demand": "peak", "price": "", "status": "available"}},
+            {"date": "2025-03-16", "override": {"demand": "peak", "price": "", "status": "available"}},
+            {"date": "2025-03-17", "override": {"demand": "peak", "price": "", "status": "available"}}
+            // … more dates can be added
+          ]
+        }
+      },
+      {
+        "types": ["local","date","image"],
+        "attractionId": "53067",
+        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52+(1).jpeg",
+        "calendarConfiguration": {
+          "days": [{
+            "monday": {"demand": "", "price": "", "status": "unavailable"},
+            "tuesday": {"demand": "non_peak", "price": "", "status": "available"},
+            "wednesday": {"demand": "non_peak", "price": "", "status": "available"},
+            "thursday": {"demand": "non_peak", "price": "", "status": "available"},
+            "friday": {"demand": "non_peak", "price": "", "status": "available"},
+            "saturday": {"demand": "peak", "price": "", "status": "available"},
+            "sunday": {"demand": "peak", "price": "", "status": "available"}
+          }],
+          "dates": [
+            {"date": "2025-03-15", "override": {"demand": "peak", "price": "", "status": "available"}},
+            {"date": "2025-03-16", "override": {"demand": "peak", "price": "", "status": "available"}},
+            {"date": "2025-03-17", "override": {"demand": "peak", "price": "", "status": "available"}}
+            // … more dates can be added
+          ]
+        }
+      },
+      {
+        "types": ["local","date","image"],
+        "attractionId": "53068",
+        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52.jpeg",
+        "calendarConfiguration": {
+          "days": [{
+            "monday": {"demand": "", "price": "", "status": "unavailable"},
+            "tuesday": {"demand": "", "price": "", "status": "available"},
+            "wednesday": {"demand": "", "price": "", "status": "available"},
+            "thursday": {"demand": "", "price": "", "status": "available"},
+            "friday": {"demand": "", "price": "", "status": "available"},
+            "saturday": {"demand": "", "price": "", "status": "available"},
+            "sunday": {"demand": "", "price": "", "status": "available"}
+          }],
+          "dates": [
+            {"date": "2025-03-17", "override": {"demand": "", "price": "", "status": "available"}},
+            {"date": "2025-03-31", "override": {"demand": "", "price": "", "status": "available"}}
+            // … more dates can be added
+          ]
+        }
+      },
+      {"types": ["local","date"], "attractionId": "53105"},
+      {"types": ["local","date"], "attractionId": "53205"},
+      {"types": ["local","date"], "attractionId": "53107"},
+      {"types": ["date"], "attractionId": "53106"}
+    ];
+    
+    // Initialize CodeMirror
+    var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {
+      value: JSON.stringify(sampleData, null, 2),
+      mode: {name: "javascript", json: true},
+      theme: "default",
+      lineNumbers: true,
+      matchBrackets: true,
+      indentUnit: 2,
+      tabSize: 2,
+      lineWrapping: true,
+      readOnly: false
+    });
+    
+    // DOM elements
+    var feedback = document.getElementById('feedback');
+    var editor = document.getElementById('editor');
+    var formatBtn = document.getElementById('formatBtn');
+    var clearBtn = document.getElementById('clearBtn');
+    var sampleBtn = document.getElementById('sampleBtn');
+    var expandAllBtn = document.getElementById('expandAllBtn');
+    var collapseAllBtn = document.getElementById('collapseAllBtn');
+    
+    // Function to parse JSON from CodeMirror
+    function parseJsonFromEditor() {
+      var jsonText = codeMirror.getValue();
+      
+      try {
+        var parsed = JSON.parse(jsonText);
+        feedback.textContent = "Valid JSON!";
+        feedback.className = "alert alert-success";
+        return parsed;
+      } catch (e) {
+        // Extract line and column information
+        var match = e.message.match(/position (\d+).*line (\d+) column (\d+)/);
+        if (match) {
+          var position = parseInt(match[1], 10);
+          var line = parseInt(match[2], 10) - 1; // CodeMirror is 0-indexed
+          var column = parseInt(match[3], 10) - 1;
+          
+          // Highlight the error line and position
+          codeMirror.addLineClass(line, 'background', 'error-line');
+          
+          // Create a marker at the error position
+          var marker = document.createElement('span');
+          marker.className = 'error-location';
+          codeMirror.markText(
+            {line: line, ch: Math.max(0, column - 1)},
+            {line: line, ch: column + 1},
+            {className: 'error-location'}
+          );
+          
+          // Scroll to the error position
+          codeMirror.scrollIntoView({line: line, ch: column}, 100);
+          
+          feedback.textContent = "Invalid JSON: " + e.message;
+          feedback.className = "alert alert-danger";
+        } else {
+          feedback.textContent = "Invalid JSON: " + e.message;
+          feedback.className = "alert alert-danger";
+        }
+        return null;
+      }
+    }
+    
+    // Initialize the editor plugin with CodeMirror input
+    var editorInstance = new DynamicJSONEditor({
+      inputElement: {
+        value: codeMirror.getValue(),
+        addEventListener: function(event, callback) {
+          if (event === 'input') {
+            codeMirror.on('change', function() {
+              // Clear previous error markers
+              codeMirror.getAllMarks().forEach(function(mark) {
+                mark.clear();
+              });
+              
+              // Clear line classes
+              for (var i = 0; i < codeMirror.lineCount(); i++) {
+                codeMirror.removeLineClass(i, 'background', 'error-line');
+              }
+              
+              callback();
+            });
+          }
+        }
+      },
+      editorElement: editor,
+      feedbackElement: feedback,
+      onUpdate: function(data) {
+        console.log("Updated JSON:", data);
+      },
+      getValue: function() {
+        return codeMirror.getValue();
+      },
+      setValue: function(value) {
+        codeMirror.setValue(value);
+      }
+    });
+    
+    // Override parseInput method to work with CodeMirror
+    editorInstance.parseInput = function() {
+      var parsed = parseJsonFromEditor();
+      if (parsed !== null) {
+        this.data = parsed;
+        this.render();
+        this.onUpdate(this.data);
+      }
+    };
+    
+    // Override update method
+    editorInstance.update = function() {
+      codeMirror.setValue(JSON.stringify(this.data, null, 2));
+      this.render();
+      this.onUpdate(this.data);
+    };
+    
+    // Button event handlers
+    formatBtn.addEventListener('click', function() {
+      try {
+        const parsed = JSON.parse(codeMirror.getValue());
+        codeMirror.setValue(JSON.stringify(parsed, null, 2));
+        feedback.textContent = "JSON formatted successfully!";
+        feedback.className = "alert alert-success";
+        editorInstance.parseInput();
+      } catch (e) {
+        parseJsonFromEditor(); // Show error position
+      }
+    });
+    
+    clearBtn.addEventListener('click', function() {
+      if(confirm("Are you sure you want to clear the editor?")) {
+        codeMirror.setValue('[]');
+        editorInstance.parseInput();
+      }
+    });
+    
+    sampleBtn.addEventListener('click', function() {
+      codeMirror.setValue(JSON.stringify(sampleData, null, 2));
+      editorInstance.parseInput();
+    });
+    
+    // Expand/Collapse all functions
+    expandAllBtn.addEventListener('click', function() {
+      var collapsibles = document.querySelectorAll('.collapsible-container.collapsed');
+      collapsibles.forEach(function(element) {
+        element.classList.remove('collapsed');
+      });
+    });
+    
+    collapseAllBtn.addEventListener('click', function() {
+      var collapsibles = document.querySelectorAll('.collapsible-container:not(.collapsed)');
+      collapsibles.forEach(function(element) {
+        element.classList.add('collapsed');
+      });
+    });
+    
+    // Initial parse
+    editorInstance.parseInput();
+  </script>
 </body>
-</html> 
+</html>

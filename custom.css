@@ -3,7 +3,7 @@
   font-family: monospace;
   font-size: 14px;
   line-height: 1.5;
-  padding: 10px;
+  padding: 8px;
   background-color: #fff;
   color: #333;
 }
@@ -21,14 +21,14 @@
   cursor: pointer;
   color: #555;
   display: inline-block;
-  width: 16px;
+  width: 14px;
   text-align: center;
   user-select: none;
 }
 
 .key {
-  color: #000;
-  font-weight: normal;
+  color: #881391;
+  margin-right: 3px;
 }
 
 .key-container {
@@ -43,8 +43,32 @@
   width: 12px;
 }
 
+.colon {
+  margin-right: 3px;
+}
+
 .value {
-  color: #d14729;
+  color: #1a1aa6;
+}
+
+.value[data-type="number"] {
+  color: #09885a;
+}
+
+.value[data-type="boolean"] {
+  color: #0000ff;
+}
+
+.array-bracket {
+  color: #555;
+}
+
+.object-brace {
+  color: #555;
+}
+
+.comma {
+  color: #555;
 }
 
 .collapsed > .tree-content {
@@ -52,10 +76,8 @@
 }
 
 .node-line {
-  padding: 2px 0;
+  position: relative;
   white-space: nowrap;
-  display: flex;
-  align-items: baseline;
 }
 
 .node-line:hover {
@@ -63,26 +85,105 @@
 }
 
 .editable {
-  display: inline-block;
-  min-width: 20px;
-  padding: 0 2px;
-  border: 1px solid transparent;
-  cursor: text;
+  padding: 1px 3px;
+  border-radius: 2px;
+  outline: none;
 }
 
 .editable:hover {
-  border-bottom: 1px dashed #999;
+  background-color: #f0f8ff;
 }
 
 .editable:focus {
-  background: #fff;
-  border: 1px solid #ddd;
-  outline: none;
-  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  background-color: #e0f0ff;
+  border: 1px solid #aaa;
+  padding: 0px 2px;
 }
 
-.object-brace, .array-bracket, .comma, .colon {
-  color: #333;
+/* Error Highlighting Styles */
+.error-line {
+  background-color: rgba(255, 200, 200, 0.8) !important;
+  position: relative;
+}
+
+.error-location {
+  background-color: #ff6b6b !important;
+  color: white !important;
+  border-radius: 2px;
+  text-decoration: wavy underline red;
+}
+
+.error-location-line {
+  text-decoration: wavy underline #ff6b6b;
+}
+
+.alert-danger {
+  white-space: pre-wrap;
+  font-family: monospace;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Error context highlighting */
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+/* Make the error line more visible */
+.alert-danger .error-line-marker {
+  background-color: #ffebee;
+  display: inline-block;
+  width: 100%;
+}
+
+/* CSS for the CodeMirror error highlighting */
+.CodeMirror .error-line {
+  background-color: rgba(255, 200, 200, 0.8);
+}
+
+.CodeMirror .error-location {
+  background-color: #ff6b6b;
+  color: white;
+  text-decoration: wavy underline red;
+}
+
+.CodeMirror-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 1px solid #ddd;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  width: 80%;
+  max-width: 600px;
+}
+
+.error-context pre {
+  margin: 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.error-context .error-line {
+  background-color: #ffebee;
+  font-weight: bold;
+}
+
+.error-context .error-marker {
+  font-weight: bold;
+  color: #d32f2f;
 }
 
 /* Keep some of the original styles for the input area */
@@ -162,12 +263,6 @@
     color: #6c757d;
     font-style: italic;
     margin-left: 5px;
-  }
-  .error-line {
-    background-color: rgba(255, 0, 0, 0.1);
-  }
-  .error-location {
-    border-bottom: 2px solid red;
   }
   .btn-action {
     width: 100%;

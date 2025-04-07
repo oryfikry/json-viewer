@@ -32,15 +32,40 @@
     .json-textarea {
       height: 640px;
     }
+    /* Additional error styling */
+    .error-line {
+      background-color: rgba(255, 200, 200, 0.8) !important;
+    }
+    
+    .error-location {
+      background-color: #ff6b6b !important;
+      color: white !important;
+      border-radius: 2px;
+      text-decoration: wavy underline red;
+    }
+    
+    #feedback {
+      font-family: monospace;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    #feedback.alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px 15px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 
 <body>
   <div class="container mt-4 mb-5">
-    <h1 class="display-5 mb-4">JSON Tree Editor</h1>
+    <h1 class="display-8 mb-4">JSON Tree Editor</h1>
 
     <div class="row template-navigation">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <div class="btn-group" role="group">
           <a href="index.html" class="btn btn-primary">Main Editor Dynamic</a>
           <a href="template-sample-a.html" class="btn btn-outline-primary">Template Fixed A</a>
@@ -52,11 +77,11 @@
     </div>
 
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-6">
         <div class="card json-textarea">
           <div class="card-header">
             <h5 class="mb-0 py-2"><i class="bi bi-braces"></i> JSON Input</h5>
-            <div id="feedback" class="mt-2 p-2 rounded"></div>
+            <div id="feedback" class="rounded"></div>
           </div>
           <div class="card-body text-area-container">
             <!-- CodeMirror container -->
@@ -64,10 +89,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-12 px-4">
+      <div class="col-md-6 px-4">
         <div class="card mt-4">
           <div class="card-header">
             <h5 class="mb-0 p-1"><i class="bi bi-tree"></i> JSON Tree View</h5>
@@ -77,6 +99,9 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="row">
     </div>
 
     <div class="row">

@@ -87,18 +87,198 @@
 
   // Parse JSON from the textarea.
   DynamicJSONEditor.prototype.parseInput = function() {
+    var jsonText = this.getValue();
+    
     try {
-      var parsed = JSON.parse(this.getValue());
+      var parsed = JSON.parse(jsonText);
       this.data = parsed;
       this.feedbackElement.textContent = "Valid JSON!";
       this.feedbackElement.className = "alert alert-success";
       this.render();
       this.onUpdate(this.data);
     } catch (e) {
-      this.feedbackElement.textContent = "Invalid JSON: " + e.message;
+      // Check for specific errors first
+      var trailingCommaInfo = detectTrailingCommaInText(jsonText);
+      if (trailingCommaInfo) {
+        // We found a trailing comma error
+        var line = trailingCommaInfo.line;
+        var column = trailingCommaInfo.column;
+        
+        // Get the line content where the error occurred
+        var jsonLines = jsonText.split('\n');
+        if (line < jsonLines.length) {
+          var lineContent = jsonLines[line];
+          
+          // Add context information around the error
+          var startLine = Math.max(0, line - 2);
+          var endLine = Math.min(jsonLines.length - 1, line + 2);
+          var contextLines = [];
+          
+          for (var i = startLine; i <= endLine; i++) {
+            var prefix = (i === line) ? ' → ' : '   ';
+            var lineNum = (i + 1).toString().padStart(4, ' ');
+            
+            if (i === line) {
+              // Highlight the exact position of the trailing comma
+              var content = lineContent;
+              var marker = ' '.repeat(column) + '^';
+              contextLines.push(prefix + lineNum + ': ' + content);
+              contextLines.push('     ' + marker + ' Trailing comma');
+            } else {
+              contextLines.push(prefix + lineNum + ': ' + jsonLines[i]);
+            }
+          }
+          
+          var errorContext = contextLines.join('\n');
+          
+          // Construct a detailed error message
+          var errorMessage = "Invalid JSON: Trailing comma detected\n";
+          errorMessage += "At line " + (line + 1) + ", column " + (column + 1) + "\n\n";
+          errorMessage += errorContext + "\n\n";
+          errorMessage += "JSON does not allow trailing commas. Remove the comma after the last item.";
+          
+          // Display error in feedback element
+          this.feedbackElement.innerHTML = errorMessage.replace(/\n/g, '<br>');
+          this.feedbackElement.className = "alert alert-danger";
+          return;
+        }
+      }
+      
+      // Attempt to extract line and column information
+      var line = 0;
+      var column = 0;
+      var position = -1;
+      
+      // Extract position from error message
+      var posMatch = e.message.match(/position\s+(\d+)/i);
+      var lineColMatch = e.message.match(/line\s+(\d+)\s+column\s+(\d+)/i);
+      
+      if (posMatch) {
+        position = parseInt(posMatch[1], 10);
+      }
+      
+      if (lineColMatch) {
+        line = parseInt(lineColMatch[1], 10);
+        column = parseInt(lineColMatch[2], 10);
+      } else if (position !== -1) {
+        // If we have a position but no line/column, calculate them
+        var lines = jsonText.substring(0, position).split('\n');
+        line = lines.length;
+        column = lines[lines.length - 1].length + 1;
+      } else {
+        // Try to find the error position by checking for SyntaxError details
+        var tokenMatch = e.message.match(/Unexpected token\s+([^\s]+)/i);
+        var endMatch = e.message.match(/Unexpected end of JSON/i);
+        
+        if (tokenMatch || endMatch) {
+          // Search for common JSON syntax errors
+          var errorTokens = [
+            ',}', ',]', // Trailing commas
+            '}{', '][', // Missing commas
+            ':""}', ':""]', // Empty strings with missing quotes
+            ':,', ':}', ':]' // Missing values
+          ];
+          
+          for (var i = 0; i < errorTokens.length; i++) {
+            var pos = jsonText.indexOf(errorTokens[i]);
+            if (pos !== -1) {
+              position = pos + 1; // Point to the problematic character
+              break;
+            }
+          }
+          
+          if (position === -1 && tokenMatch) {
+            // Search for the unexpected token
+            var token = tokenMatch[1].replace(/['"\\]/g, '');
+            position = jsonText.indexOf(token);
+          }
+          
+          if (position !== -1) {
+            // Calculate line and column
+            var lines = jsonText.substring(0, position).split('\n');
+            line = lines.length;
+            column = lines[lines.length - 1].length + 1;
+          }
+        }
+      }
+      
+      // Construct a detailed error message
+      var errorMessage = "Invalid JSON: " + e.message;
+      
+      if (line > 0) {
+        errorMessage += "\nAt line " + line + ", column " + column;
+        
+        // Add context if we have a line number
+        var jsonLines = jsonText.split('\n');
+        var startLine = Math.max(0, line - 3);
+        var endLine = Math.min(jsonLines.length - 1, line + 1);
+        
+        errorMessage += "\n\nContext:";
+        for (var i = startLine; i <= endLine; i++) {
+          var prefix = (i === line - 1) ? " → " : "   ";
+          errorMessage += "\n" + prefix + (i + 1) + ": " + jsonLines[i];
+          
+          // Add a marker pointing to the error position
+          if (i === line - 1) {
+            var marker = " ".repeat(prefix.length + (i + 1).toString().length + 2 + column - 1) + "^";
+            errorMessage += "\n" + marker;
+          }
+        }
+      }
+      
+      // Display error in feedback element
+      this.feedbackElement.innerHTML = errorMessage.replace(/\n/g, '<br>');
       this.feedbackElement.className = "alert alert-danger";
     }
   };
+
+  // Helper function to detect trailing commas in JSON text
+  function detectTrailingCommaInText(jsonText) {
+    // Regular expressions to find trailing commas
+    var objectTrailingComma = /,\s*\}/g;
+    var arrayTrailingComma = /,\s*\]/g;
+    
+    // Find all matches of trailing commas
+    var matches = [];
+    var match;
+    
+    // Check for trailing commas in objects
+    while ((match = objectTrailingComma.exec(jsonText)) !== null) {
+      matches.push({
+        index: match.index,
+        type: 'object'
+      });
+    }
+    
+    // Check for trailing commas in arrays
+    while ((match = arrayTrailingComma.exec(jsonText)) !== null) {
+      matches.push({
+        index: match.index,
+        type: 'array'
+      });
+    }
+    
+    if (matches.length > 0) {
+      // Find the first position where a trailing comma appears
+      var firstMatch = matches.reduce(function(min, current) {
+        return current.index < min.index ? current : min;
+      }, matches[0]);
+      
+      // Calculate line and column for the trailing comma
+      var textBeforeComma = jsonText.substring(0, firstMatch.index);
+      var lines = textBeforeComma.split('\n');
+      var line = lines.length - 1;
+      var column = lines[line].length;
+      
+      return {
+        line: line,
+        column: column,
+        type: firstMatch.type
+      };
+    }
+    
+    return null;
+  }
 
   // Render the entire editor recursively.
   DynamicJSONEditor.prototype.render = function() {
@@ -818,36 +998,335 @@
         feedbackElement.className = "alert alert-success";
         return parsed;
       } catch (e) {
-        // Extract line and column information
-        var match = e.message.match(/position (\d+).*line (\d+) column (\d+)/);
-        if (match) {
-          var position = parseInt(match[1], 10);
-          var line = parseInt(match[2], 10) - 1; // CodeMirror is 0-indexed
-          var column = parseInt(match[3], 10) - 1;
-          
-          // Highlight the error line and position
-          codeMirrorInstance.addLineClass(line, 'background', 'error-line');
-          
-          // Create a marker at the error position
-          var marker = document.createElement('span');
-          marker.className = 'error-location';
-          codeMirrorInstance.markText(
-            { line: line, ch: Math.max(0, column - 1) },
-            { line: line, ch: column + 1 },
-            { className: 'error-location' }
-          );
-          
-          // Scroll to the error position
-          codeMirrorInstance.scrollIntoView({ line: line, ch: column }, 100);
-          
-          feedbackElement.textContent = "Invalid JSON: " + e.message;
-          feedbackElement.className = "alert alert-danger";
+        // First, clear previous error markers
+        codeMirrorInstance.getAllMarks().forEach(function(mark) {
+          mark.clear();
+        });
+        
+        // Clear line classes
+        for (var i = 0; i < codeMirrorInstance.lineCount(); i++) {
+          codeMirrorInstance.removeLineClass(i, 'background', 'error-line');
+        }
+        
+        // Check for specific common errors
+        var errorInfo = null;
+        
+        // Check for trailing commas
+        errorInfo = detectTrailingComma(jsonText);
+        if (errorInfo) {
+          highlightAndReportError(errorInfo, 'Trailing comma detected', 
+            'JSON does not allow trailing commas. Remove the comma after the last item.');
+          return null;
+        }
+        
+        // Check for missing commas
+        errorInfo = detectMissingComma(jsonText);
+        if (errorInfo) {
+          highlightAndReportError(errorInfo, 'Missing comma detected', 
+            'JSON requires commas between array elements or object properties. Add a comma after this item.');
+          return null;
+        }
+        
+        // Check for unquoted property names
+        errorInfo = detectUnquotedPropertyName(jsonText);
+        if (errorInfo) {
+          highlightAndReportError(errorInfo, 'Unquoted property name detected', 
+            'In JSON, all property names must be enclosed in double quotes.');
+          return null;
+        }
+        
+        // Check for single quotes (instead of required double quotes)
+        errorInfo = detectSingleQuotes(jsonText);
+        if (errorInfo) {
+          highlightAndReportError(errorInfo, 'Single quotes detected', 
+            'JSON requires double quotes (") for strings and property names, not single quotes (\').');
+          return null;
+        }
+        
+        // Extract position, line, and column information
+        var line = 0;
+        var column = 0;
+        var position = -1;
+        var errorMessage = e.message;
+        
+        // Pattern matching for common error message formats
+        var posMatch = e.message.match(/position\s+(\d+)/i);
+        var lineColMatch = e.message.match(/line\s+(\d+)\s+column\s+(\d+)/i);
+        
+        if (posMatch) {
+          position = parseInt(posMatch[1], 10);
+        }
+        
+        if (lineColMatch) {
+          line = parseInt(lineColMatch[1], 10) - 1; // Convert to 0-indexed
+          column = parseInt(lineColMatch[2], 10) - 1;
+        } else if (position !== -1) {
+          // If we have a position but no line/column, calculate them
+          var lines = jsonText.substring(0, position).split('\n');
+          line = lines.length - 1;
+          column = lines[line].length;
         } else {
+          // Try to find the error position by checking for SyntaxError details
+          var tokenMatch = e.message.match(/Unexpected token\s+([^\s]+)/i);
+          var endMatch = e.message.match(/Unexpected end of JSON/i);
+          
+          if (tokenMatch || endMatch) {
+            // Search for common JSON syntax errors
+            var errorTokens = [
+              ',}', ',]', // Trailing commas
+              '}{', '][', // Missing commas
+              ':""}', ':""]', // Empty strings with missing quotes
+              ':,', ':}', ':]' // Missing values
+            ];
+            
+            for (var i = 0; i < errorTokens.length; i++) {
+              var pos = jsonText.indexOf(errorTokens[i]);
+              if (pos !== -1) {
+                position = pos + 1; // Point to the problematic character
+                break;
+              }
+            }
+            
+            if (position === -1 && tokenMatch) {
+              // Search for the unexpected token
+              var token = tokenMatch[1].replace(/['"\\]/g, '');
+              position = jsonText.indexOf(token);
+            }
+            
+            if (position !== -1) {
+              // Calculate line and column
+              var lines = jsonText.substring(0, position).split('\n');
+              line = lines.length - 1;
+              column = lines[line].length;
+            }
+          }
+        }
+        
+        // If we have a line number, highlight it
+        if (line >= 0 && line < codeMirrorInstance.lineCount()) {
+          // Create an error info object
+          var errorInfo = {
+            line: line,
+            column: column,
+            message: e.message
+          };
+          
+          // Use the helper function to highlight and report the error
+          highlightAndReportError(errorInfo, e.message);
+        } else {
+          // Fallback for when we can't determine the line/column
           feedbackElement.textContent = "Invalid JSON: " + e.message;
           feedbackElement.className = "alert alert-danger";
         }
+        
         return null;
       }
+    }
+    
+    // Helper function to highlight and report errors
+    function highlightAndReportError(errorInfo, errorTitle, errorSuggestion) {
+      var line = errorInfo.line;
+      var column = errorInfo.column;
+      
+      // Highlight the error line
+      codeMirrorInstance.addLineClass(line, 'background', 'error-line');
+      
+      // Mark the error position
+      codeMirrorInstance.markText(
+        { line: line, ch: Math.max(0, column - 1) },
+        { line: line, ch: column + 1 },
+        { className: 'error-location' }
+      );
+      
+      // Scroll to the error location
+      codeMirrorInstance.scrollIntoView({ line: line, ch: column }, 100);
+      
+      // Extract context for the error
+      var startLine = Math.max(0, line - 2);
+      var endLine = Math.min(codeMirrorInstance.lineCount() - 1, line + 2);
+      var contextLines = [];
+      
+      for (var i = startLine; i <= endLine; i++) {
+        var prefix = (i === line) ? '► ' : '  ';
+        var lineContent = codeMirrorInstance.getLine(i);
+        
+        // Highlight the exact position of the error
+        if (i === line && column >= 0 && column < lineContent.length) {
+          var before = lineContent.substring(0, column);
+          var char = lineContent.substring(column, column + 1);
+          var after = lineContent.substring(column + 1);
+          
+          lineContent = before + '<span class="error-marker">' + char + '</span>' + after;
+        }
+        
+        contextLines.push(prefix + lineContent);
+      }
+      
+      var errorContext = contextLines.join('\n');
+      
+      // Construct a detailed error message
+      var detailedError = 'Invalid JSON: ' + errorTitle + '\n';
+      detailedError += 'At line ' + (line + 1) + ', column ' + (column + 1) + ':\n';
+      detailedError += '\n' + errorContext + '\n\n';
+      
+      // Add suggestion if provided
+      if (errorSuggestion) {
+        detailedError += errorSuggestion;
+      }
+      
+      // Display error in feedback element with line breaks preserved
+      feedbackElement.innerHTML = detailedError.replace(/\n/g, '<br>');
+      feedbackElement.className = "alert alert-danger";
+    }
+    
+    // Helper function to detect trailing commas in JSON objects and arrays
+    function detectTrailingComma(jsonText) {
+      // Regular expressions to find trailing commas
+      var objectTrailingComma = /,\s*\}/g;
+      var arrayTrailingComma = /,\s*\]/g;
+      
+      // Find all matches of trailing commas
+      var matches = [];
+      var match;
+      
+      // Check for trailing commas in objects
+      while ((match = objectTrailingComma.exec(jsonText)) !== null) {
+        matches.push({
+          index: match.index,
+          type: 'object'
+        });
+      }
+      
+      // Check for trailing commas in arrays
+      while ((match = arrayTrailingComma.exec(jsonText)) !== null) {
+        matches.push({
+          index: match.index,
+          type: 'array'
+        });
+      }
+      
+      if (matches.length > 0) {
+        // Find the first position where a trailing comma appears
+        var firstMatch = matches.reduce(function(min, current) {
+          return current.index < min.index ? current : min;
+        }, matches[0]);
+        
+        // Calculate line and column for the trailing comma
+        var textBeforeComma = jsonText.substring(0, firstMatch.index);
+        var lines = textBeforeComma.split('\n');
+        var line = lines.length - 1;
+        var column = lines[line].length;
+        
+        return {
+          line: line,
+          column: column,
+          type: firstMatch.type
+        };
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect missing commas in JSON
+    function detectMissingComma(jsonText) {
+      // Look for patterns that indicate missing commas
+      var objectMissingComma = /("[^"]*":|[0-9]+)\s*("[^"]*":)/g;
+      var arrayMissingComma = /("[^"]*"|true|false|null|[0-9]+)\s*("[^"]*"|true|false|null|[0-9]+)/g;
+      
+      // Find potential missing commas
+      var matches = [];
+      var match;
+      
+      // Check for missing commas in objects
+      while ((match = objectMissingComma.exec(jsonText)) !== null) {
+        matches.push({
+          index: match.index + match[1].length,
+          type: 'object'
+        });
+      }
+      
+      // Check for missing commas in arrays
+      while ((match = arrayMissingComma.exec(jsonText)) !== null) {
+        matches.push({
+          index: match.index + match[1].length,
+          type: 'array'
+        });
+      }
+      
+      if (matches.length > 0) {
+        // Find the first occurrence
+        var firstMatch = matches.reduce(function(min, current) {
+          return current.index < min.index ? current : min;
+        }, matches[0]);
+        
+        // Calculate line and column
+        var textBeforeError = jsonText.substring(0, firstMatch.index);
+        var lines = textBeforeError.split('\n');
+        var line = lines.length - 1;
+        var column = lines[line].length;
+        
+        return {
+          line: line,
+          column: column,
+          type: firstMatch.type
+        };
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect unquoted property names
+    function detectUnquotedPropertyName(jsonText) {
+      // Look for patterns like identifier: or identifier :
+      var unquotedPropPattern = /\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g;
+      var match;
+      
+      while ((match = unquotedPropPattern.exec(jsonText)) !== null) {
+        // Make sure it's not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Calculate line and column
+          var lines = beforeMatch.split('\n');
+          var line = lines.length - 1;
+          var column = lines[line].length;
+          
+          return {
+            line: line,
+            column: column,
+            type: 'unquoted',
+            value: match[1]
+          };
+        }
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect single quotes (which are not valid in JSON)
+    function detectSingleQuotes(jsonText) {
+      // Look for patterns with single quotes
+      var singleQuotePattern = /'[^']*'/g;
+      var match;
+      
+      while ((match = singleQuotePattern.exec(jsonText)) !== null) {
+        // Calculate line and column
+        var beforeMatch = jsonText.substring(0, match.index);
+        var lines = beforeMatch.split('\n');
+        var line = lines.length - 1;
+        var column = lines[line].length;
+        
+        return {
+          line: line,
+          column: column,
+          type: 'single-quote',
+          value: match[0]
+        };
+      }
+      
+      return null;
     }
     
     // Create editor instance

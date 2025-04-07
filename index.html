@@ -67,11 +67,16 @@
           </div>
           <div class="card-body">
             <p><i class="bi bi-dot"></i> <strong>Editing:</strong> Click on any value to edit it directly.</p>
-            <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Click the + icon to add items from templates or create empty values.</p>
-            <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Hover over any line and click the × icon that appears to delete it.</p>
-            <p><i class="bi bi-dot"></i> <strong>Deleting Keys:</strong> Hover over any key and click the smaller × icon that appears next to the key to delete that specific key-value pair.</p>
-            <p><i class="bi bi-dot"></i> <strong>Expanding/Collapsing:</strong> Click the ▼/► icons to expand or collapse objects and arrays.</p>
-            <p><i class="bi bi-dot"></i> <strong>Templates:</strong> When adding new items, select from predefined templates with fixed and dynamic values.</p>
+            <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Click the + icon to add items from templates or create
+              empty values.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Hover over any line and click the × icon that
+              appears to delete it.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting Keys:</strong> Hover over any key and click the smaller × icon
+              that appears next to the key to delete that specific key-value pair.</p>
+            <p><i class="bi bi-dot"></i> <strong>Expanding/Collapsing:</strong> Click the ▼/► icons to expand or
+              collapse objects and arrays.</p>
+            <p><i class="bi bi-dot"></i> <strong>Templates:</strong> When adding new items, select from predefined
+              templates with fixed and dynamic values.</p>
           </div>
         </div>
       </div>
@@ -83,137 +88,164 @@
     // Sample data provided by the user.
     var sampleData = [
       {
-        "types": ["local", "date", "image"],
-        "attractionId": "2311",
-        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52+(2).jpeg",
-        "calendarConfiguration": {
-          "days": [{
-            "monday": { "demand": "", "price": "", "status": "unavailable" },
-            "tuesday": { "demand": "non_peak", "price": "", "status": "available" },
-            "wednesday": { "demand": "non_peak", "price": "", "status": "available" },
-            "thursday": { "demand": "non_peak", "price": "", "status": "available" },
-            "friday": { "demand": "non_peak", "price": "", "status": "available" },
-            "saturday": { "demand": "peak", "price": "", "status": "available" },
-            "sunday": { "demand": "peak", "price": "", "status": "available" }
-          }],
-          "dates": [
-            { "date": "2025-03-15", "override": { "demand": "peak", "price": "", "status": "available" } },
-            { "date": "2025-03-16", "override": { "demand": "peak", "price": "", "status": "available" } },
-            { "date": "2025-03-17", "override": { "demand": "peak", "price": "", "status": "available" } }
-          ]
-        }
+        "text_label": "Attractions & Tours",
+        "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/discover",
+        "items": [
+          {
+            "text_label": "Singapore Cable Car",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/discover/cable-car/",
+            "items": [],
+            "sortOrder": 1,
+            "active": 1
+          },
+          {
+            "text_label": "Wings of Time",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/discover/wings-of-time",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "SkyHelix Sentosa",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/skyhelix-sentosa-open-dated/11593",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "Sentosa Island Bus Tour",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/sentosa-island-bus-tour/5029",
+            "items": [],
+            "sortOrder": 3,
+            "active": 1
+          },
+          {
+            "text_label": "Dino Time",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/air-combat-above-12-years-old/5034",
+            "items": [],
+            "sortOrder": 4,
+            "active": 1
+          }
+        ],
+        "sortOrder": 1,
+        "active": 1
       },
       {
-        "types": ["local", "date", "image"],
-        "attractionId": "53067",
-        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52+(1).jpeg",
-        "calendarConfiguration": {
-          "days": [{
-            "monday": { "demand": "", "price": "", "status": "unavailable" },
-            "tuesday": { "demand": "non_peak", "price": "", "status": "available" },
-            "wednesday": { "demand": "non_peak", "price": "", "status": "available" },
-            "thursday": { "demand": "non_peak", "price": "", "status": "available" },
-            "friday": { "demand": "non_peak", "price": "", "status": "available" },
-            "saturday": { "demand": "peak", "price": "", "status": "available" },
-            "sunday": { "demand": "peak", "price": "", "status": "available" }
-          }],
-          "dates": [
-            { "date": "2025-03-15", "override": { "demand": "peak", "price": "", "status": "available" } },
-            { "date": "2025-03-16", "override": { "demand": "peak", "price": "", "status": "available" } },
-            { "date": "2025-03-17", "override": { "demand": "peak", "price": "", "status": "available" } }
-          ]
-        }
+        "text_label": "Packages",
+        "url": "https://uat-mflgenterprise-online.globaltix.com/packages/discover",
+        "items": [
+          {
+            "text_label": "Cable Car Flexi Pass (Choose 2)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-flexi-pass-choose-2/166721",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "Cable Car Flexi Pass (Choose 4)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-flexi-pass-choose-4/166722",
+            "items": [],
+            "sortOrder": 3,
+            "active": 1
+          },
+          {
+            "text_label": "Cable Car Sky Pass + Madame Tussauds",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-sky-pass-madame-tussauds/169758",
+            "items": [],
+            "sortOrder": 4,
+            "active": 1
+          },
+          {
+            "text_label": "Sky Pass (Round Trip) + SkyOrb Cabin (One-way experience)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/fly-and-seaa/13536",
+            "items": [],
+            "sortOrder": 5,
+            "active": 1
+          },
+          {
+            "text_label": "Fly and Explore (Sky Pass Unlimited + SkyHelix + S.E.A. Aquarium)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/fly-and-seaa/13536",
+            "items": [],
+            "sortOrder": 6,
+            "active": 1
+          }
+        ],
+        "sortOrder": 2,
+        "active": 1
       },
       {
-        "types": ["local", "date", "image"],
-        "attractionId": "53068",
-        "image_url": "https://gt-media-assets.s3.ap-southeast-1.amazonaws.com/images/Science+Centre/WhatsApp+Image+2025-03-20+at+15.30.52.jpeg",
-        "calendarConfiguration": {
-          "days": [{
-            "monday": { "demand": "", "price": "", "status": "unavailable" },
-            "tuesday": { "demand": "", "price": "", "status": "available" },
-            "wednesday": { "demand": "", "price": "", "status": "available" },
-            "thursday": { "demand": "", "price": "", "status": "available" },
-            "friday": { "demand": "", "price": "", "status": "available" },
-            "saturday": { "demand": "", "price": "", "status": "available" },
-            "sunday": { "demand": "", "price": "", "status": "available" }
-          }],
-          "dates": [
-            { "date": "2025-03-17", "override": { "demand": "", "price": "", "status": "available" } },
-            { "date": "2025-03-31", "override": { "demand": "", "price": "", "status": "available" } }
-          ]
-        }
-      },
-      { "types": ["local", "date"], "attractionId": "53105" },
-      { "types": ["local", "date"], "attractionId": "53205" },
-      { "types": ["local", "date"], "attractionId": "53107" },
-      { "types": ["date"], "attractionId": "53106" }
-    ];
-    
-    // Define templates for main page
-    var mainTemplates = {
-      "level1": {
-        name: "Level 1 Fixed Template",
-        template: {
-          "types": ["local", "date"],
-          "attractionId": "",
-          "calendarConfiguration": {
-            "days": [{
-              "monday": { "demand": "", "price": "", "status": "unavailable" },
-              "tuesday": { "demand": "", "price": "", "status": "available" },
-              "wednesday": { "demand": "", "price": "", "status": "available" },
-              "thursday": { "demand": "", "price": "", "status": "available" },
-              "friday": { "demand": "", "price": "", "status": "available" },
-              "saturday": { "demand": "", "price": "", "status": "available" },
-              "sunday": { "demand": "", "price": "", "status": "available" }
-            }],
-            "dates": []
+          "text_label": "Cable Car Sky Dining",
+          "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/product/sky-dining/49732",
+          "items": [],
+          "sortOrder": 3,
+          "active": 1
+      }
+    ]
+
+    // Function to check which object has the most complete values
+    function findMostCompleteData(data) {
+      let mostComplete = {
+        item: null,
+        score: 0,
+        path: ""
+      };
+
+      function calculateScore(obj, path = "") {
+        if (!obj || typeof obj !== 'object') return 0;
+        
+        // Start with counting direct keys
+        const keys = Object.keys(obj);
+        let score = keys.length;
+        let currentPath = path;
+        
+        // Check arrays - add points for non-empty arrays, penalize empty ones
+        for (const key of keys) {
+          if (Array.isArray(obj[key])) {
+            // If array has items, add bonus points based on array length
+            if (obj[key].length > 0) {
+              score += obj[key].length;
+            } else {
+              // Penalize empty arrays by giving less value than populated ones
+              score -= 0.5; // Empty arrays are considered less complete
+            }
           }
         }
-      },
-      "level2A": {
-        name: "Level 2 Template A",
-        template: {
-          "types": ["local", "date", "image"],
-          "attractionId": "",
-          "fixedValue": "fixed-A",
-          "dynamicValue": ""
+        
+        // Check if this object has a better score than our current most complete
+        if (score > mostComplete.score) {
+          mostComplete.item = obj;
+          mostComplete.score = score;
+          mostComplete.path = currentPath;
         }
-      },
-      "level2B": {
-        name: "Level 2 Template B",
-        template: {
-          "types": ["local", "date", "image"],
-          "attractionId": "",
-          "fixedValue": "fixed-B",
-          "dynamicValue": ""
-        }
-      },
-      "level2C": {
-        name: "Level 2 Template C",
-        template: {
-          "types": ["local", "date", "image"],
-          "attractionId": "",
-          "fixedValue": "fixed-C",
-          "dynamicValue": ""
-        }
-      },
-      "level2D": {
-        name: "Level 2 Template D",
-        template: {
-          "types": ["local", "date", "image"],
-          "attractionId": "",
-          "fixedValue": "fixed-D",
-          "dynamicValue": ""
-        }
-      },
-      "dateOverride": {
-        name: "Date Override",
-        template: {
-          "date": "",
-          "override": { "demand": "", "price": "", "status": "available" }
+        
+        // If this object has an items array, check each item recursively
+        if (Array.isArray(obj.items)) {
+          obj.items.forEach((item, index) => {
+            let itemPath = path ? `${path} → ${obj.text_label || 'item'} → ${item.text_label || `index ${index}`}` : `${obj.text_label || 'item'} → ${item.text_label || `index ${index}`}`;
+            calculateScore(item, itemPath);
+          });
         }
       }
+
+      // Start the recursive check for each top-level item
+      data.forEach((item, index) => {
+        let itemPath = item.text_label || `index ${index}`;
+        calculateScore(item, itemPath);
+      });
+
+      return mostComplete;
+    }
+
+    // Call the function and log the result
+    document.addEventListener('DOMContentLoaded', function() {
+      const mostCompleteData = findMostCompleteData(sampleData);
+      console.log("Most complete data item:", mostCompleteData.item);
+      console.log("Completeness score:", mostCompleteData.score);
+      console.log("Path:", mostCompleteData.path);
+    });
+
+    // Define templates for main page
+    var mainTemplates = {
     };
   </script>
   <!-- / Sample Data -->
@@ -230,10 +262,10 @@
 
   <!-- Include the editor plugin -->
   <script src="DynamicJSONEditor.js"></script>
-  
+
   <!-- Initialize Editor -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Initialize CodeMirror for JSON editor
       var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {
         value: JSON.stringify(sampleData, null, 2),
@@ -246,10 +278,10 @@
         lineWrapping: true,
         readOnly: false
       });
-      
+
       // Get feedback element
       var feedback = document.getElementById('feedback');
-      
+
       // Initialize the Dynamic JSON Editor with CodeMirror
       var editorInstance = DynamicJSONEditor.initWithCodeMirror("editor", codeMirror, sampleData, {
         sampleData: sampleData,
@@ -262,7 +294,7 @@
           showExpand: true,
           showCollapse: true
         },
-        onUpdate: function(data) {
+        onUpdate: function (data) {
           console.log("JSON data updated:", data);
         }
       });

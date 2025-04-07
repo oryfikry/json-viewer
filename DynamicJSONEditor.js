@@ -7,6 +7,7 @@
    * @param {HTMLElement} options.editorElement - Container where the editor is rendered.
    * @param {HTMLElement} options.feedbackElement - Element to show validation messages.
    * @param {Function} [options.onUpdate] - Callback invoked whenever the JSON data is updated.
+   * @param {Object} [options.templates] - Predefined templates for adding new items
    */
   function DynamicJSONEditor(options) {
     this.inputElement = options.inputElement;
@@ -14,6 +15,54 @@
     this.feedbackElement = options.feedbackElement;
     this.onUpdate = options.onUpdate || function(data) {};
     this.data = {}; // main JSON data
+    this.templates = options.templates || {
+      // Default templates
+      "level1": {
+        name: "Level 1 Fixed Template",
+        template: {
+          "id": "",
+          "name": "",
+          "type": "fixed",
+          "properties": {}
+        }
+      },
+      "level2A": {
+        name: "Level 2 Template A",
+        template: {
+          "id": "",
+          "type": "templateA",
+          "fixedValue": "fixed-A",
+          "dynamicValue": ""
+        }
+      },
+      "level2B": {
+        name: "Level 2 Template B",
+        template: {
+          "id": "",
+          "type": "templateB",
+          "fixedValue": "fixed-B",
+          "dynamicValue": ""
+        }
+      },
+      "level2C": {
+        name: "Level 2 Template C",
+        template: {
+          "id": "",
+          "type": "templateC",
+          "fixedValue": "fixed-C",
+          "dynamicValue": ""
+        }
+      },
+      "level2D": {
+        name: "Level 2 Template D",
+        template: {
+          "id": "",
+          "type": "templateD",
+          "fixedValue": "fixed-D",
+          "dynamicValue": ""
+        }
+      }
+    };
     
     // For custom input element (like CodeMirror)
     this.getValue = options.getValue || function() { 
@@ -122,8 +171,30 @@
       addButton.style.fontWeight = "bold";
       addButton.addEventListener("click", function() {
         if (isArray) {
+          // Get the last item in the array as a template or create empty string
           var arr = self.getDataByPath(path);
-          arr.push("");
+          var newItem = "";
+          if (arr.length > 0) {
+            // Use the last item as a template
+            var lastItem = arr[arr.length - 1];
+            if (typeof lastItem === "object" && lastItem !== null) {
+              // Deep clone the object
+              newItem = JSON.parse(JSON.stringify(lastItem));
+              // Clear any ID fields or similar identifiers
+              if (newItem.id) newItem.id = "";
+              if (newItem.ID) newItem.ID = "";
+              if (newItem.Id) newItem.Id = "";
+              if (newItem.name) newItem.name = "";
+              if (newItem.Name) newItem.Name = "";
+            } else {
+              // For primitive values, use the same type but empty/zero value
+              if (typeof lastItem === "string") newItem = "";
+              else if (typeof lastItem === "number") newItem = 0;
+              else if (typeof lastItem === "boolean") newItem = false;
+              else newItem = null;
+            }
+          }
+          arr.push(newItem);
           self.update();
         } else {
           var promptKey = prompt("Enter new property name:");
@@ -133,7 +204,32 @@
               alert("Key already exists");
               return;
             }
-            obj[promptKey] = "";
+            
+            // Check if there are other properties to copy structure from
+            var keys = Object.keys(obj);
+            if (keys.length > 0) {
+              var lastProp = obj[keys[keys.length - 1]];
+              var newValue = "";
+              if (typeof lastProp === "object" && lastProp !== null) {
+                // Deep clone the object
+                newValue = JSON.parse(JSON.stringify(lastProp));
+                // Clear any ID fields or similar identifiers
+                if (newValue.id) newValue.id = "";
+                if (newValue.ID) newValue.ID = "";
+                if (newValue.Id) newValue.Id = "";
+                if (newValue.name) newValue.name = "";
+                if (newValue.Name) newValue.Name = "";
+              } else {
+                // For primitive values, use the same type but empty/zero value
+                if (typeof lastProp === "string") newValue = "";
+                else if (typeof lastProp === "number") newValue = 0;
+                else if (typeof lastProp === "boolean") newValue = false;
+                else newValue = null;
+              }
+              obj[promptKey] = newValue;
+            } else {
+              obj[promptKey] = "";
+            }
             self.update();
           }
         }
@@ -171,7 +267,7 @@
     var nodeLine = document.createElement("div");
     nodeLine.className = "node-line";
     
-    // Delete icon
+    // Delete icon for the entire node
     var deleteIcon = document.createElement("span");
     deleteIcon.className = "toggle-icon";
     deleteIcon.innerHTML = "×";
@@ -182,10 +278,12 @@
     
     nodeLine.addEventListener("mouseenter", function() {
       deleteIcon.style.visibility = "visible";
+      if (keyDeleteIcon) keyDeleteIcon.style.visibility = "visible";
     });
     
     nodeLine.addEventListener("mouseleave", function() {
       deleteIcon.style.visibility = "hidden";
+      if (keyDeleteIcon) keyDeleteIcon.style.visibility = "hidden";
     });
     
     deleteIcon.addEventListener("click", function(e) {
@@ -202,12 +300,53 @@
       }
     });
     
-    // Key or index
+    // Key or index with deletable key
+    var keyDeleteIcon = null;
     if (key !== null) {
+      // Container for key and its delete icon
+      var keyContainer = document.createElement("div");
+      keyContainer.className = "key-container";
+      keyContainer.style.display = "inline-flex";
+      keyContainer.style.alignItems = "center";
+      
+      // Delete icon for the key
+      keyDeleteIcon = document.createElement("span");
+      keyDeleteIcon.className = "toggle-icon";
+      keyDeleteIcon.innerHTML = "×";
+      keyDeleteIcon.title = "Delete Key";
+      keyDeleteIcon.style.visibility = "hidden";
+      keyDeleteIcon.style.color = "#f00";
+      keyDeleteIcon.style.fontWeight = "bold";
+      keyDeleteIcon.style.marginRight = "3px";
+      keyDeleteIcon.style.fontSize = "0.8em";
+      
+      keyDeleteIcon.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (confirm("Delete this key and its value?")) {
+          var parent = self.getParentByPath(path);
+          var prop = path[path.length - 1];
+          if (Array.isArray(parent)) {
+            parent.splice(prop, 1);
+          } else {
+            delete parent[prop];
+          }
+          self.update();
+        }
+      });
+      
+      // Only show the key delete icon for object properties, not array items
+      if (!Array.isArray(self.getParentByPath(path))) {
+        keyContainer.appendChild(keyDeleteIcon);
+      } else {
+        keyDeleteIcon = null;
+      }
+      
       var keySpan = document.createElement("span");
       keySpan.className = "key";
       keySpan.textContent = Array.isArray(self.getParentByPath(path)) ? "" : "\"" + key + "\"";
-      nodeLine.appendChild(keySpan);
+      keyContainer.appendChild(keySpan);
+      
+      nodeLine.appendChild(keyContainer);
       
       var colonSpan = document.createElement("span");
       colonSpan.className = "colon";
@@ -271,7 +410,29 @@
       addButton.addEventListener("click", function(e) {
         e.stopPropagation();
         if (isArray) {
-          data.push("");
+          // Get the last item in the array as a template or create empty string
+          var newItem = "";
+          if (data.length > 0) {
+            // Use the last item as a template
+            var lastItem = data[data.length - 1];
+            if (typeof lastItem === "object" && lastItem !== null) {
+              // Deep clone the object
+              newItem = JSON.parse(JSON.stringify(lastItem));
+              // Clear any ID fields or similar identifiers
+              if (newItem.id) newItem.id = "";
+              if (newItem.ID) newItem.ID = "";
+              if (newItem.Id) newItem.Id = "";
+              if (newItem.name) newItem.name = "";
+              if (newItem.Name) newItem.Name = "";
+            } else {
+              // For primitive values, use the same type but empty/zero value
+              if (typeof lastItem === "string") newItem = "";
+              else if (typeof lastItem === "number") newItem = 0;
+              else if (typeof lastItem === "boolean") newItem = false;
+              else newItem = null;
+            }
+          }
+          data.push(newItem);
           self.update();
         } else {
           var promptKey = prompt("Enter new property name:");
@@ -280,7 +441,32 @@
               alert("Key already exists");
               return;
             }
-            data[promptKey] = "";
+            
+            // Check if there are other properties to copy structure from
+            var keys = Object.keys(data);
+            if (keys.length > 0) {
+              var lastProp = data[keys[keys.length - 1]];
+              var newValue = "";
+              if (typeof lastProp === "object" && lastProp !== null) {
+                // Deep clone the object
+                newValue = JSON.parse(JSON.stringify(lastProp));
+                // Clear any ID fields or similar identifiers
+                if (newValue.id) newValue.id = "";
+                if (newValue.ID) newValue.ID = "";
+                if (newValue.Id) newValue.Id = "";
+                if (newValue.name) newValue.name = "";
+                if (newValue.Name) newValue.Name = "";
+              } else {
+                // For primitive values, use the same type but empty/zero value
+                if (typeof lastProp === "string") newValue = "";
+                else if (typeof lastProp === "number") newValue = 0;
+                else if (typeof lastProp === "boolean") newValue = false;
+                else newValue = null;
+              }
+              data[promptKey] = newValue;
+            } else {
+              data[promptKey] = "";
+            }
             self.update();
           }
         }
@@ -398,6 +584,402 @@
     this.setValue(JSON.stringify(this.data, null, 2));
     this.render();
     this.onUpdate(this.data);
+  };
+  
+  // Create a simplified initialization function for easy integration
+  DynamicJSONEditor.init = function(elementId, jsonData, options) {
+    options = options || {};
+    
+    var element = document.getElementById(elementId);
+    if (!element) {
+      console.error("Element with ID '" + elementId + "' not found");
+      return null;
+    }
+    
+    // Default button configuration
+    var buttonConfig = options.buttons || {};
+    buttonConfig = {
+      showFormat: buttonConfig.showFormat !== undefined ? buttonConfig.showFormat : true,
+      showClear: buttonConfig.showClear !== undefined ? buttonConfig.showClear : true,
+      showSample: buttonConfig.showSample !== undefined ? buttonConfig.showSample : true,
+      showExpand: buttonConfig.showExpand !== undefined ? buttonConfig.showExpand : true,
+      showCollapse: buttonConfig.showCollapse !== undefined ? buttonConfig.showCollapse : true
+    };
+    
+    // Create container elements
+    var wrapperDiv = document.createElement("div");
+    wrapperDiv.className = "json-editor-wrapper";
+    
+    // Add button toolbar if any buttons are enabled
+    if (buttonConfig.showFormat || buttonConfig.showClear || buttonConfig.showSample || 
+        buttonConfig.showExpand || buttonConfig.showCollapse) {
+      
+      var toolbarDiv = document.createElement("div");
+      toolbarDiv.className = "json-editor-toolbar d-flex flex-row mb-2";
+      
+      if (buttonConfig.showFormat) {
+        var formatBtn = document.createElement("button");
+        formatBtn.className = "btn btn-outline-primary me-2";
+        formatBtn.innerHTML = '<i class="bi bi-code-square"></i> Format JSON';
+        formatBtn.id = elementId + "-format";
+        toolbarDiv.appendChild(formatBtn);
+      }
+      
+      if (buttonConfig.showClear) {
+        var clearBtn = document.createElement("button");
+        clearBtn.className = "btn btn-outline-danger me-2";
+        clearBtn.innerHTML = '<i class="bi bi-trash"></i> Clear';
+        clearBtn.id = elementId + "-clear";
+        toolbarDiv.appendChild(clearBtn);
+      }
+      
+      if (buttonConfig.showSample) {
+        var sampleBtn = document.createElement("button");
+        sampleBtn.className = "btn btn-outline-secondary me-2";
+        sampleBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Load Sample';
+        sampleBtn.id = elementId + "-sample";
+        toolbarDiv.appendChild(sampleBtn);
+      }
+      
+      if (buttonConfig.showExpand) {
+        var expandBtn = document.createElement("button");
+        expandBtn.className = "btn btn-outline-info me-2";
+        expandBtn.innerHTML = '<i class="bi bi-arrows-expand"></i> Expand All';
+        expandBtn.id = elementId + "-expand";
+        toolbarDiv.appendChild(expandBtn);
+      }
+      
+      if (buttonConfig.showCollapse) {
+        var collapseBtn = document.createElement("button");
+        collapseBtn.className = "btn btn-outline-info";
+        collapseBtn.innerHTML = '<i class="bi bi-arrows-collapse"></i> Collapse All';
+        collapseBtn.id = elementId + "-collapse";
+        toolbarDiv.appendChild(collapseBtn);
+      }
+      
+      wrapperDiv.appendChild(toolbarDiv);
+    }
+    
+    var jsonInput = document.createElement("textarea");
+    jsonInput.className = "json-editor-input";
+    jsonInput.style.display = "none";
+    jsonInput.value = JSON.stringify(jsonData, null, 2);
+    
+    var editorDiv = document.createElement("div");
+    editorDiv.className = "json-editor-visual";
+    
+    var feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "json-editor-feedback";
+    
+    wrapperDiv.appendChild(jsonInput);
+    wrapperDiv.appendChild(feedbackDiv);
+    wrapperDiv.appendChild(editorDiv);
+    
+    element.appendChild(wrapperDiv);
+    
+    // Create editor instance
+    var editorOptions = {
+      inputElement: jsonInput,
+      editorElement: editorDiv,
+      feedbackElement: feedbackDiv,
+      onUpdate: options.onUpdate || function() {},
+      templates: options.templates
+    };
+    
+    var editor = new DynamicJSONEditor(editorOptions);
+    
+    // Add button event handlers if buttons are shown
+    if (buttonConfig.showFormat) {
+      document.getElementById(elementId + "-format").addEventListener('click', function() {
+        try {
+          var value = editor.getValue();
+          var parsed = JSON.parse(value);
+          editor.setValue(JSON.stringify(parsed, null, 2));
+          feedbackDiv.textContent = "JSON formatted successfully!";
+          feedbackDiv.className = "alert alert-success";
+          editor.parseInput();
+        } catch (e) {
+          feedbackDiv.textContent = "Invalid JSON: " + e.message;
+          feedbackDiv.className = "alert alert-danger";
+        }
+      });
+    }
+    
+    if (buttonConfig.showClear) {
+      document.getElementById(elementId + "-clear").addEventListener('click', function() {
+        if (confirm("Are you sure you want to clear the editor?")) {
+          editor.setValue('[]');
+          editor.parseInput();
+        }
+      });
+    }
+    
+    if (buttonConfig.showSample && options.sampleData) {
+      document.getElementById(elementId + "-sample").addEventListener('click', function() {
+        editor.setValue(JSON.stringify(options.sampleData, null, 2));
+        editor.parseInput();
+      });
+    }
+    
+    if (buttonConfig.showExpand) {
+      document.getElementById(elementId + "-expand").addEventListener('click', function() {
+        var collapsibles = document.querySelectorAll('#' + elementId + ' .tree-node.collapsed');
+        collapsibles.forEach(function(element) {
+          element.classList.remove('collapsed');
+          var toggleIcon = element.querySelector('.toggle-icon');
+          if (toggleIcon) toggleIcon.textContent = "▼";
+        });
+      });
+    }
+    
+    if (buttonConfig.showCollapse) {
+      document.getElementById(elementId + "-collapse").addEventListener('click', function() {
+        var collapsibles = document.querySelectorAll('#' + elementId + ' .tree-node:not(.collapsed)');
+        collapsibles.forEach(function(element) {
+          if (element.querySelector('.tree-content')) {
+            element.classList.add('collapsed');
+            var toggleIcon = element.querySelector('.toggle-icon');
+            if (toggleIcon) toggleIcon.textContent = "►";
+          }
+        });
+      });
+    }
+    
+    return editor;
+  };
+
+  // Helper function to load templates from JSON files or URLs
+  DynamicJSONEditor.loadTemplates = function(templatesUrl, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', templatesUrl, true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          try {
+            var templates = JSON.parse(xhr.responseText);
+            callback(null, templates);
+          } catch (e) {
+            callback(e, null);
+          }
+        } else {
+          callback(new Error("Failed to load templates: " + xhr.status), null);
+        }
+      }
+    };
+    xhr.send();
+  };
+
+  // Simplified initialization function with CodeMirror support
+  DynamicJSONEditor.initWithCodeMirror = function(editorElementId, codeMirrorInstance, jsonData, options) {
+    options = options || {};
+    
+    var editorElement = document.getElementById(editorElementId);
+    if (!editorElement) {
+      console.error("Element with ID '" + editorElementId + "' not found");
+      return null;
+    }
+    
+    // Create feedback element if not provided
+    var feedbackElement = options.feedbackElement || document.createElement('div');
+    if (!options.feedbackElement) {
+      feedbackElement.className = "alert mt-2";
+      editorElement.parentNode.insertBefore(feedbackElement, editorElement.nextSibling);
+    }
+    
+    // Create CodeMirror adapter
+    var codeMirrorAdapter = {
+      value: codeMirrorInstance.getValue(),
+      addEventListener: function(event, callback) {
+        if (event === 'input') {
+          codeMirrorInstance.on('change', function() {
+            // Clear previous error markers
+            codeMirrorInstance.getAllMarks().forEach(function(mark) {
+              mark.clear();
+            });
+            
+            // Clear line classes
+            for (var i = 0; i < codeMirrorInstance.lineCount(); i++) {
+              codeMirrorInstance.removeLineClass(i, 'background', 'error-line');
+            }
+            
+            callback();
+          });
+        }
+      }
+    };
+    
+    // Function to parse JSON and highlight errors
+    function parseJsonFromCodeMirror() {
+      var jsonText = codeMirrorInstance.getValue();
+      
+      try {
+        var parsed = JSON.parse(jsonText);
+        feedbackElement.textContent = "Valid JSON!";
+        feedbackElement.className = "alert alert-success";
+        return parsed;
+      } catch (e) {
+        // Extract line and column information
+        var match = e.message.match(/position (\d+).*line (\d+) column (\d+)/);
+        if (match) {
+          var position = parseInt(match[1], 10);
+          var line = parseInt(match[2], 10) - 1; // CodeMirror is 0-indexed
+          var column = parseInt(match[3], 10) - 1;
+          
+          // Highlight the error line and position
+          codeMirrorInstance.addLineClass(line, 'background', 'error-line');
+          
+          // Create a marker at the error position
+          var marker = document.createElement('span');
+          marker.className = 'error-location';
+          codeMirrorInstance.markText(
+            { line: line, ch: Math.max(0, column - 1) },
+            { line: line, ch: column + 1 },
+            { className: 'error-location' }
+          );
+          
+          // Scroll to the error position
+          codeMirrorInstance.scrollIntoView({ line: line, ch: column }, 100);
+          
+          feedbackElement.textContent = "Invalid JSON: " + e.message;
+          feedbackElement.className = "alert alert-danger";
+        } else {
+          feedbackElement.textContent = "Invalid JSON: " + e.message;
+          feedbackElement.className = "alert alert-danger";
+        }
+        return null;
+      }
+    }
+    
+    // Create editor instance
+    var editorOptions = {
+      inputElement: codeMirrorAdapter,
+      editorElement: editorElement,
+      feedbackElement: feedbackElement,
+      templates: options.templates,
+      onUpdate: options.onUpdate || function() {},
+      getValue: function() {
+        return codeMirrorInstance.getValue();
+      },
+      setValue: function(value) {
+        codeMirrorInstance.setValue(value);
+      }
+    };
+    
+    var editorInstance = new DynamicJSONEditor(editorOptions);
+    
+    // Override parseInput method to work with CodeMirror
+    editorInstance.parseInput = function() {
+      var parsed = parseJsonFromCodeMirror();
+      if (parsed !== null) {
+        this.data = parsed;
+        this.render();
+        this.onUpdate(this.data);
+      }
+    };
+    
+    // Override update method
+    editorInstance.update = function() {
+      codeMirrorInstance.setValue(JSON.stringify(this.data, null, 2));
+      this.render();
+      this.onUpdate(this.data);
+    };
+    
+    // Add toolbar with buttons if configured
+    if (options.buttons) {
+      var buttonConfig = options.buttons;
+      var cardHeader = editorElement.closest('.card').querySelector('.card-header');
+      
+      if (cardHeader) {
+        var toolbar = document.createElement("div");
+        toolbar.className = "d-flex flex-row";
+        
+        // Format button
+        if (buttonConfig.showFormat) {
+          var formatBtn = document.createElement("button");
+          formatBtn.className = "btn btn-action btn-outline-primary me-2";
+          formatBtn.innerHTML = '<i class="bi bi-code-square"></i> Format JSON';
+          formatBtn.addEventListener('click', function() {
+            try {
+              var parsed = JSON.parse(codeMirrorInstance.getValue());
+              codeMirrorInstance.setValue(JSON.stringify(parsed, null, 2));
+              feedbackElement.textContent = "JSON formatted successfully!";
+              feedbackElement.className = "alert alert-success";
+              editorInstance.parseInput();
+            } catch (e) {
+              parseJsonFromCodeMirror(); // Show error position
+            }
+          });
+          toolbar.appendChild(formatBtn);
+        }
+        
+        // Clear button
+        if (buttonConfig.showClear) {
+          var clearBtn = document.createElement("button");
+          clearBtn.className = "btn btn-action btn-outline-danger me-2";
+          clearBtn.innerHTML = '<i class="bi bi-trash"></i> Clear';
+          clearBtn.addEventListener('click', function() {
+            if (confirm("Are you sure you want to clear the editor?")) {
+              codeMirrorInstance.setValue('[]');
+              editorInstance.parseInput();
+            }
+          });
+          toolbar.appendChild(clearBtn);
+        }
+        
+        // Sample button
+        if (buttonConfig.showSample && options.sampleData) {
+          var sampleBtn = document.createElement("button");
+          sampleBtn.className = "btn btn-action btn-outline-secondary me-2";
+          sampleBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Load Sample';
+          sampleBtn.addEventListener('click', function() {
+            codeMirrorInstance.setValue(JSON.stringify(options.sampleData, null, 2));
+            editorInstance.parseInput();
+          });
+          toolbar.appendChild(sampleBtn);
+        }
+        
+        // Expand all button
+        if (buttonConfig.showExpand) {
+          var expandAllBtn = document.createElement("button");
+          expandAllBtn.className = "btn btn-action btn-outline-info me-2";
+          expandAllBtn.innerHTML = '<i class="bi bi-arrows-expand"></i> Expand All';
+          expandAllBtn.addEventListener('click', function() {
+            var collapsibles = document.querySelectorAll('.tree-node.collapsed');
+            collapsibles.forEach(function(element) {
+              element.classList.remove('collapsed');
+              var toggleIcon = element.querySelector('.toggle-icon');
+              if (toggleIcon) toggleIcon.textContent = "▼";
+            });
+          });
+          toolbar.appendChild(expandAllBtn);
+        }
+        
+        // Collapse all button
+        if (buttonConfig.showCollapse) {
+          var collapseAllBtn = document.createElement("button");
+          collapseAllBtn.className = "btn btn-action btn-outline-info";
+          collapseAllBtn.innerHTML = '<i class="bi bi-arrows-collapse"></i> Collapse All';
+          collapseAllBtn.addEventListener('click', function() {
+            var collapsibles = document.querySelectorAll('.tree-node:not(.collapsed)');
+            collapsibles.forEach(function(element) {
+              if (element.querySelector('.tree-content')) {
+                element.classList.add('collapsed');
+                var toggleIcon = element.querySelector('.toggle-icon');
+                if (toggleIcon) toggleIcon.textContent = "►";
+              }
+            });
+          });
+          toolbar.appendChild(collapseAllBtn);
+        }
+        
+        cardHeader.appendChild(toolbar);
+      }
+    }
+    
+    // Initial parse
+    editorInstance.parseInput();
+    
+    return editorInstance;
   };
 
   // Expose the editor to the global scope.

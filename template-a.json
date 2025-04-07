@@ -1,0 +1,1905 @@
+[
+    {
+        "types": [
+            "local",
+            "date",
+            "image"
+        ],
+        "attractionId": "2311",
+        "image_url": "https:\/\/gt-media-assets.s3.ap-southeast-1.amazonaws.com\/images\/Science+Centre\/WhatsApp+Image+2025-03-20+at+15.30.52+(2).jpeg",
+        "calendarConfiguration": {
+            "days": [
+                {
+                    "monday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "unavailable"
+                    },
+                    "tuesday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "wednesday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "thursday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "friday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "saturday": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "sunday": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ],
+            "dates": [
+                {
+                    "date": "2025-03-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-04-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-02",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-04",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-07-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-08-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-08-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-10-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-10-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-30",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-02",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-04",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-30",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "types": [
+            "local",
+            "date",
+            "image"
+        ],
+        "attractionId": "53067",
+        "image_url": "https:\/\/gt-media-assets.s3.ap-southeast-1.amazonaws.com\/images\/Science+Centre\/WhatsApp+Image+2025-03-20+at+15.30.52+(1).jpeg",
+        "calendarConfiguration": {
+            "days": [
+                {
+                    "monday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "unavailable"
+                    },
+                    "tuesday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "wednesday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "thursday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "friday": {
+                        "demand": "non_peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "saturday": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "sunday": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ],
+            "dates": [
+                {
+                    "date": "2025-03-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-04-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-02",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-04",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-07-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-08-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-08-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-10-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-10-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-30",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-01",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-02",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-03",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-04",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-05",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-06",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-07",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-08",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-09",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-10",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-11",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-12",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-13",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-14",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-15",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-16",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-17",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-18",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-19",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-20",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-21",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-22",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-23",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-24",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-25",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-26",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-27",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-28",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-29",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-30",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-31",
+                    "override": {
+                        "demand": "peak",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "types": [
+            "local",
+            "date",
+            "image"
+        ],
+        "attractionId": "53068",
+        "image_url": "https:\/\/gt-media-assets.s3.ap-southeast-1.amazonaws.com\/images\/Science+Centre\/WhatsApp+Image+2025-03-20+at+15.30.52.jpeg",
+        "calendarConfiguration": {
+            "days": [
+                {
+                    "monday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "unavailable"
+                    },
+                    "tuesday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "wednesday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "thursday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "friday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "saturday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    },
+                    "sunday": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ],
+            "dates": [
+                {
+                    "date": "2025-03-17",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-03-31",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-05-12",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-02",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-09",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-16",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-06-23",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-07-07",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-08-11",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-09-08",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-10-20",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-11-24",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-01",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-08",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-15",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-22",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                },
+                {
+                    "date": "2025-12-29",
+                    "override": {
+                        "demand": "",
+                        "price": "",
+                        "status": "available"
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "types": [
+            "local",
+            "date"
+        ],
+        "attractionId": "53105"
+    },
+    {
+        "types": [
+            "local",
+            "date"
+        ],
+        "attractionId": "53205"
+    },
+    {
+        "types": [
+            "local",
+            "date"
+        ],
+        "attractionId": "53107"
+    },
+    {
+        "types": [
+            "date"
+        ],
+        "attractionId": "53106"
+    }
+]

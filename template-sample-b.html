@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template B - JSON Editor</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="custom.css">
+  <style>
+    .template-navigation {
+      margin-bottom: 20px;
+    }
+    .template-card {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4 mb-5">
+    <h1 class="display-5 mb-4">Level 2 Template B Sample</h1>
+    
+    <div class="row template-navigation">
+      <div class="col-md-12">
+        <div class="btn-group" role="group">
+          <a href="index.html" class="btn btn-outline-primary">Main Editor Dynamic</a>
+          <a href="template-sample-a.html" class="btn btn-outline-primary">Template Fixed A</a>
+          <a href="template-sample-b.html" class="btn btn-primary">Template Fixed B</a>
+          <!-- <a href="template-sample-c.html" class="btn btn-outline-primary">Template C</a>
+          <a href="template-sample-d.html" class="btn btn-outline-primary">Template D</a> -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card template-card">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Template B Properties</h5>
+          </div>
+          <div class="card-body">
+            <p>Template B is designed for:</p>
+            <ul>
+              <li>Fixed template with type "templateB"</li>
+              <li>Contains a fixed value ("fixed-B")</li>
+              <li>Includes dynamic value field that can be modified</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">JSON Tree View</h5>
+          </div>
+          <div class="card-body" id="editor-container">
+            <!-- JSON editor will be rendered here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include the JSON editor script -->
+  <script src="DynamicJSONEditor.js"></script>
+  <script>
+    // Sample data for Template B
+    var sampleData = {
+      "id": "template-b-example",
+      "type": "templateB",
+      "fixedValue": "fixed-B",
+      "dynamicValue": "This is a sample dynamic value for B",
+      "configuration": {
+        "settings": {
+          "option1": true,
+          "option2": false,
+          "option3": "custom"
+        },
+        "items": [
+          { "id": "b-item1", "value": 100 },
+          { "id": "b-item2", "value": 200 }
+        ]
+      }
+    };
+
+    // Use the simplified initialization API with button configuration
+    DynamicJSONEditor.init("editor-container", sampleData, {
+      sampleData: sampleData, // Provide sample data for the Sample button
+      buttons: {
+        showFormat: true,
+        showClear: true,
+        showSample: true,
+        showExpand: true,
+        showCollapse: true
+      },
+      onUpdate: function(data) {
+        console.log("Template B data updated:", data);
+      }
+    });
+  </script>
+</body>
+</html> 

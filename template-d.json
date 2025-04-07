@@ -1,0 +1,22 @@
+[
+    {
+        "id": "nationality",
+        "class": "",
+        "label": "Nationality",
+        "name": "NATIONALITY",
+        "type": "select",
+        "required": true,
+        "tooltip": null,
+        "options": [
+            {
+                "text": "Nationalities",
+                "value": ""
+            },
+            {
+                "text": "Singapore",
+                "value": "Singapore"
+            }
+        ]
+    }
+]
+  

@@ -31,6 +31,18 @@
   font-weight: normal;
 }
 
+.key-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.key-container .toggle-icon {
+  color: #f00;
+  font-size: 0.8em;
+  width: 12px;
+}
+
 .value {
   color: #d14729;
 }

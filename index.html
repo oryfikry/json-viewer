@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JSON Tree Viewer</title>
+  <title>JSON Tree Editor</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -13,79 +13,92 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
   <link rel="stylesheet" href="custom.css">
+  <style>
+    .template-navigation {
+      margin-bottom: 20px;
+    }
+    .CodeMirror {
+      height: auto;
+      min-height: 250px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .CodeMirror-scroll {
+      height: 500px;
+    }
+    #feedback {
+      margin-top: 10px;
+    }
+    .json-textarea {
+      height: 640px;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container mt-4 mb-5">
-    <h1 class="display-5 mb-4">JSON Tree Viewer</h1>
+    <h1 class="display-5 mb-4">JSON Tree Editor</h1>
+
+    <div class="row template-navigation">
+      <div class="col-md-12">
+        <div class="btn-group" role="group">
+          <a href="index.html" class="btn btn-primary">Main Editor Dynamic</a>
+          <a href="template-sample-a.html" class="btn btn-outline-primary">Template Fixed A</a>
+          <a href="template-sample-b.html" class="btn btn-outline-primary">Template Fixed B</a>
+          <!-- <a href="template-sample-c.html" class="btn btn-outline-primary">Template C</a>
+          <a href="template-sample-d.html" class="btn btn-outline-primary">Template D</a> -->
+        </div>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col-md-12">
         <div class="card json-textarea">
           <div class="card-header">
             <h5 class="mb-0 py-2"><i class="bi bi-braces"></i> JSON Input</h5>
-            <div class="d-flex flex-row">
-              <button id="formatBtn" class="btn btn-action btn-outline-primary me-2"><i
-                  class="bi bi-code-square"></i> Format JSON</button>
-              <button id="clearBtn" class="btn btn-action btn-outline-danger me-2"><i class="bi bi-trash"></i>
-                Clear</button>
-              <button id="sampleBtn" class="btn btn-action btn-outline-secondary me-2"><i
-                  class="bi bi-arrow-repeat"></i> Load Sample</button>
-              <button id="expandAllBtn" class="btn btn-action btn-outline-info me-2"><i
-                  class="bi bi-arrows-expand"></i> Expand All</button>
-              <button id="collapseAllBtn" class="btn btn-action btn-outline-info"><i
-                  class="bi bi-arrows-collapse"></i> Collapse All</button>
-            </div>
+            <div id="feedback" class="mt-2 p-2 rounded"></div>
           </div>
           <div class="card-body text-area-container">
-            <!-- Replace textarea with CodeMirror container -->
+            <!-- CodeMirror container -->
             <div id="jsonInputContainer"></div>
-            <div id="feedback" class="mt-2 p-2 rounded"></div>
           </div>
         </div>
       </div>
-      </div>
     </div>
+
     <div class="row">
       <div class="col-md-12 px-4">
         <div class="card mt-4">
-          <div class="card-header bg-dark text-white">
-            <h5 class="mb-0"><i class="bi bi-tree"></i> JSON Tree View</h5>
+          <div class="card-header">
+            <h5 class="mb-0 p-1"><i class="bi bi-tree"></i> JSON Tree View</h5>
           </div>
           <div class="card-body" id="editor">
             <!-- Editor will be rendered here -->
           </div>
         </div>
-
       </div>
     </div>
 
-    <div class="card mt-4">
-      <div class="card-header bg-info text-white">
-        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Help</h5>
-      </div>
-      <div class="card-body">
-        <p><i class="bi bi-dot"></i> <strong>Editing:</strong> Click on any value to edit it directly.</p>
-        <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Click the + icon to add items to arrays or properties to objects.</p>
-        <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Hover over any line and click the × icon that appears to delete it.</p>
-        <p><i class="bi bi-dot"></i> <strong>Expanding/Collapsing:</strong> Click the ▼/► icons to expand or collapse objects and arrays.</p>
-        <p><i class="bi bi-dot"></i> <strong>Types:</strong> String values are displayed in orange with quotes, numbers and booleans without quotes.</p>
+    <div class="row">
+      <div class="col-md-12 px-4">
+        <div class="card mt-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Help</h5>
+          </div>
+          <div class="card-body">
+            <p><i class="bi bi-dot"></i> <strong>Editing:</strong> Click on any value to edit it directly.</p>
+            <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Click the + icon to add items from templates or create empty values.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Hover over any line and click the × icon that appears to delete it.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting Keys:</strong> Hover over any key and click the smaller × icon that appears next to the key to delete that specific key-value pair.</p>
+            <p><i class="bi bi-dot"></i> <strong>Expanding/Collapsing:</strong> Click the ▼/► icons to expand or collapse objects and arrays.</p>
+            <p><i class="bi bi-dot"></i> <strong>Templates:</strong> When adding new items, select from predefined templates with fixed and dynamic values.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- CodeMirror for line numbers -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.min.js"></script>
-
-  <!-- Include the editor plugin -->
-  <script src="DynamicJSONEditor.js"></script>
+  <!-- Sample Data -->
   <script>
     // Sample data provided by the user.
     var sampleData = [
@@ -107,7 +120,6 @@
             { "date": "2025-03-15", "override": { "demand": "peak", "price": "", "status": "available" } },
             { "date": "2025-03-16", "override": { "demand": "peak", "price": "", "status": "available" } },
             { "date": "2025-03-17", "override": { "demand": "peak", "price": "", "status": "available" } }
-            // … more dates can be added
           ]
         }
       },
@@ -129,7 +141,6 @@
             { "date": "2025-03-15", "override": { "demand": "peak", "price": "", "status": "available" } },
             { "date": "2025-03-16", "override": { "demand": "peak", "price": "", "status": "available" } },
             { "date": "2025-03-17", "override": { "demand": "peak", "price": "", "status": "available" } }
-            // … more dates can be added
           ]
         }
       },
@@ -150,7 +161,6 @@
           "dates": [
             { "date": "2025-03-17", "override": { "demand": "", "price": "", "status": "available" } },
             { "date": "2025-03-31", "override": { "demand": "", "price": "", "status": "available" } }
-            // … more dates can be added
           ]
         }
       },
@@ -159,172 +169,126 @@
       { "types": ["local", "date"], "attractionId": "53107" },
       { "types": ["date"], "attractionId": "53106" }
     ];
-
-    // Initialize CodeMirror
-    var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {
-      value: JSON.stringify(sampleData, null, 2),
-      mode: { name: "javascript", json: true },
-      theme: "default",
-      lineNumbers: true,
-      matchBrackets: true,
-      indentUnit: 2,
-      tabSize: 2,
-      lineWrapping: true,
-      readOnly: false
-    });
-
-    // DOM elements
-    var feedback = document.getElementById('feedback');
-    var editor = document.getElementById('editor');
-    var formatBtn = document.getElementById('formatBtn');
-    var clearBtn = document.getElementById('clearBtn');
-    var sampleBtn = document.getElementById('sampleBtn');
-    var expandAllBtn = document.getElementById('expandAllBtn');
-    var collapseAllBtn = document.getElementById('collapseAllBtn');
-
-    // Function to parse JSON from CodeMirror
-    function parseJsonFromEditor() {
-      var jsonText = codeMirror.getValue();
-
-      try {
-        var parsed = JSON.parse(jsonText);
-        feedback.textContent = "Valid JSON!";
-        feedback.className = "alert alert-success";
-        return parsed;
-      } catch (e) {
-        // Extract line and column information
-        var match = e.message.match(/position (\d+).*line (\d+) column (\d+)/);
-        if (match) {
-          var position = parseInt(match[1], 10);
-          var line = parseInt(match[2], 10) - 1; // CodeMirror is 0-indexed
-          var column = parseInt(match[3], 10) - 1;
-
-          // Highlight the error line and position
-          codeMirror.addLineClass(line, 'background', 'error-line');
-
-          // Create a marker at the error position
-          var marker = document.createElement('span');
-          marker.className = 'error-location';
-          codeMirror.markText(
-            { line: line, ch: Math.max(0, column - 1) },
-            { line: line, ch: column + 1 },
-            { className: 'error-location' }
-          );
-
-          // Scroll to the error position
-          codeMirror.scrollIntoView({ line: line, ch: column }, 100);
-
-          feedback.textContent = "Invalid JSON: " + e.message;
-          feedback.className = "alert alert-danger";
-        } else {
-          feedback.textContent = "Invalid JSON: " + e.message;
-          feedback.className = "alert alert-danger";
-        }
-        return null;
-      }
-    }
-
-    // Initialize the editor plugin with CodeMirror input
-    var editorInstance = new DynamicJSONEditor({
-      inputElement: {
-        value: codeMirror.getValue(),
-        addEventListener: function (event, callback) {
-          if (event === 'input') {
-            codeMirror.on('change', function () {
-              // Clear previous error markers
-              codeMirror.getAllMarks().forEach(function (mark) {
-                mark.clear();
-              });
-
-              // Clear line classes
-              for (var i = 0; i < codeMirror.lineCount(); i++) {
-                codeMirror.removeLineClass(i, 'background', 'error-line');
-              }
-
-              callback();
-            });
+    
+    // Define templates for main page
+    var mainTemplates = {
+      "level1": {
+        name: "Level 1 Fixed Template",
+        template: {
+          "types": ["local", "date"],
+          "attractionId": "",
+          "calendarConfiguration": {
+            "days": [{
+              "monday": { "demand": "", "price": "", "status": "unavailable" },
+              "tuesday": { "demand": "", "price": "", "status": "available" },
+              "wednesday": { "demand": "", "price": "", "status": "available" },
+              "thursday": { "demand": "", "price": "", "status": "available" },
+              "friday": { "demand": "", "price": "", "status": "available" },
+              "saturday": { "demand": "", "price": "", "status": "available" },
+              "sunday": { "demand": "", "price": "", "status": "available" }
+            }],
+            "dates": []
           }
         }
       },
-      editorElement: editor,
-      feedbackElement: feedback,
-      onUpdate: function (data) {
-        console.log("Updated JSON:", data);
+      "level2A": {
+        name: "Level 2 Template A",
+        template: {
+          "types": ["local", "date", "image"],
+          "attractionId": "",
+          "fixedValue": "fixed-A",
+          "dynamicValue": ""
+        }
       },
-      getValue: function () {
-        return codeMirror.getValue();
+      "level2B": {
+        name: "Level 2 Template B",
+        template: {
+          "types": ["local", "date", "image"],
+          "attractionId": "",
+          "fixedValue": "fixed-B",
+          "dynamicValue": ""
+        }
       },
-      setValue: function (value) {
-        codeMirror.setValue(value);
-      }
-    });
-
-    // Override parseInput method to work with CodeMirror
-    editorInstance.parseInput = function () {
-      var parsed = parseJsonFromEditor();
-      if (parsed !== null) {
-        this.data = parsed;
-        this.render();
-        this.onUpdate(this.data);
+      "level2C": {
+        name: "Level 2 Template C",
+        template: {
+          "types": ["local", "date", "image"],
+          "attractionId": "",
+          "fixedValue": "fixed-C",
+          "dynamicValue": ""
+        }
+      },
+      "level2D": {
+        name: "Level 2 Template D",
+        template: {
+          "types": ["local", "date", "image"],
+          "attractionId": "",
+          "fixedValue": "fixed-D",
+          "dynamicValue": ""
+        }
+      },
+      "dateOverride": {
+        name: "Date Override",
+        template: {
+          "date": "",
+          "override": { "demand": "", "price": "", "status": "available" }
+        }
       }
     };
+  </script>
+  <!-- / Sample Data -->
 
-    // Override update method
-    editorInstance.update = function () {
-      codeMirror.setValue(JSON.stringify(this.data, null, 2));
-      this.render();
-      this.onUpdate(this.data);
-    };
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-    // Button event handlers
-    formatBtn.addEventListener('click', function () {
-      try {
-        const parsed = JSON.parse(codeMirror.getValue());
-        codeMirror.setValue(JSON.stringify(parsed, null, 2));
-        feedback.textContent = "JSON formatted successfully!";
-        feedback.className = "alert alert-success";
-        editorInstance.parseInput();
-      } catch (e) {
-        parseJsonFromEditor(); // Show error position
-      }
-    });
+  <!-- CodeMirror for line numbers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.min.js"></script>
 
-    clearBtn.addEventListener('click', function () {
-      if (confirm("Are you sure you want to clear the editor?")) {
-        codeMirror.setValue('[]');
-        editorInstance.parseInput();
-      }
-    });
-
-    sampleBtn.addEventListener('click', function () {
-      codeMirror.setValue(JSON.stringify(sampleData, null, 2));
-      editorInstance.parseInput();
-    });
-
-    // Expand/Collapse all functions
-    expandAllBtn.addEventListener('click', function () {
-      var collapsibles = document.querySelectorAll('.tree-node.collapsed');
-      collapsibles.forEach(function (element) {
-        element.classList.remove('collapsed');
-        var toggleIcon = element.querySelector('.toggle-icon');
-        if (toggleIcon) toggleIcon.textContent = "▼";
+  <!-- Include the editor plugin -->
+  <script src="DynamicJSONEditor.js"></script>
+  
+  <!-- Initialize Editor -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize CodeMirror for JSON editor
+      var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {
+        value: JSON.stringify(sampleData, null, 2),
+        mode: { name: "javascript", json: true },
+        theme: "default",
+        lineNumbers: true,
+        matchBrackets: true,
+        indentUnit: 2,
+        tabSize: 2,
+        lineWrapping: true,
+        readOnly: false
       });
-    });
-
-    collapseAllBtn.addEventListener('click', function () {
-      var collapsibles = document.querySelectorAll('.tree-node:not(.collapsed)');
-      collapsibles.forEach(function (element) {
-        if (element.querySelector('.tree-content')) {
-          element.classList.add('collapsed');
-          var toggleIcon = element.querySelector('.toggle-icon');
-          if (toggleIcon) toggleIcon.textContent = "►";
+      
+      // Get feedback element
+      var feedback = document.getElementById('feedback');
+      
+      // Initialize the Dynamic JSON Editor with CodeMirror
+      var editorInstance = DynamicJSONEditor.initWithCodeMirror("editor", codeMirror, sampleData, {
+        sampleData: sampleData,
+        templates: mainTemplates,
+        feedbackElement: feedback,
+        buttons: {
+          showFormat: true,
+          showClear: true,
+          showSample: true,
+          showExpand: true,
+          showCollapse: true
+        },
+        onUpdate: function(data) {
+          console.log("JSON data updated:", data);
         }
       });
     });
-
-    // Initial parse
-    editorInstance.parseInput();
   </script>
+  <!-- / Initialize Editor -->
 </body>
 
 </html>

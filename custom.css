@@ -274,3 +274,47 @@
 #feedback{
     margin-top: 10px;
 }
+
+.template-navigation {
+  margin-bottom: 20px;
+}
+.CodeMirror {
+  height: auto;
+  min-height: 250px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.CodeMirror-scroll {
+  height: 500px;
+}
+#feedback {
+  margin-top: 10px;
+}
+.json-textarea {
+  height: 675px;
+}
+/* Additional error styling */
+.error-line {
+  background-color: rgba(255, 200, 200, 0.8) !important;
+}
+
+.error-location {
+  background-color: #ff6b6b !important;
+  color: white !important;
+  border-radius: 2px;
+  text-decoration: wavy underline red;
+}
+
+#feedback {
+  font-family: monospace;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#feedback.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  border-radius: 4px;
+}

@@ -1,6 +1,83 @@
+/* Tree View Styles */
+.json-tree-view {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px;
+  background-color: #fff;
+  color: #333;
+}
+
+.tree-node {
+  margin-left: 20px;
+  position: relative;
+}
+
+.tree-root {
+  margin-left: 0;
+}
+
+.toggle-icon {
+  cursor: pointer;
+  color: #555;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  user-select: none;
+}
+
+.key {
+  color: #000;
+  font-weight: normal;
+}
+
+.value {
+  color: #d14729;
+}
+
+.collapsed > .tree-content {
+  display: none;
+}
+
+.node-line {
+  padding: 2px 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+}
+
+.node-line:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.editable {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 2px;
+  border: 1px solid transparent;
+  cursor: text;
+}
+
+.editable:hover {
+  border-bottom: 1px dashed #999;
+}
+
+.editable:focus {
+  background: #fff;
+  border: 1px solid #ddd;
+  outline: none;
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+
+.object-brace, .array-bracket, .comma, .colon {
+  color: #333;
+}
+
+/* Keep some of the original styles for the input area */
 .json-textarea {
     height: 640px;
 }
+
 .json-input {
     font-family: monospace;
     resize: vertical;

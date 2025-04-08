@@ -1,0 +1,8 @@
+The regular expression pattern " text_label\: \Cable Car Sky Dining\,(\s+)\url\ is not valid.
+At line:1 char:1
++ (Get-Content index.html -Raw) -replace '" text_label\: \Cable Car Sky ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (" text_label\: ...ing\,(\s+)\url\:String) [], RuntimeE 
+   xception
+    + FullyQualifiedErrorId : InvalidRegularExpression
+ 

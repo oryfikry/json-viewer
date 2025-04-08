@@ -1030,8 +1030,16 @@
         // Check for unquoted property names
         errorInfo = detectUnquotedPropertyName(jsonText);
         if (errorInfo) {
-          highlightAndReportError(errorInfo, 'Unquoted property name detected', 
-            'In JSON, all property names must be enclosed in double quotes.');
+          if (errorInfo.type === 'unquoted') {
+            highlightAndReportError(errorInfo, 'Unquoted property name detected', 
+              'In JSON, all property names must be enclosed in double quotes. Change <span class="error-code">' + 
+              errorInfo.value + ':</span> to <span class="error-suggestion">"' + errorInfo.value + '":</span>');
+          } else if (errorInfo.type === 'invalid-property') {
+            highlightAndReportError(errorInfo, 'Invalid property name format', 
+              'Found <span class="error-code">' + errorInfo.value + '</span> which is not properly quoted. ' + 
+              'In JSON, all property names must be enclosed in double quotes like <span class="error-suggestion">"' + 
+              errorInfo.value + '"</span>');
+          }
           return null;
         }
         
@@ -1131,50 +1139,117 @@
       // Highlight the error line
       codeMirrorInstance.addLineClass(line, 'background', 'error-line');
       
-      // Mark the error position
-      codeMirrorInstance.markText(
-        { line: line, ch: Math.max(0, column - 1) },
-        { line: line, ch: column + 1 },
-        { className: 'error-location' }
-      );
+      // Mark the error position with wider range to ensure visibility
+      var markStart = { line: line, ch: Math.max(0, column) };
+      var lineLength = codeMirrorInstance.getLine(line).length;
       
-      // Scroll to the error location
-      codeMirrorInstance.scrollIntoView({ line: line, ch: column }, 100);
+      // For property errors, try to mark the entire property name
+      var markEnd = { line: line, ch: column + 1 };
+      if (errorInfo.type === 'unquoted' || errorInfo.type === 'invalid-property') {
+        // Mark the entire property name
+        var propLength = errorInfo.value ? errorInfo.value.length : 1;
+        markEnd = { line: line, ch: column + propLength };
+      } else {
+        // Default to marking a small section
+        markEnd = { line: line, ch: Math.min(lineLength, column + 3) };
+      }
       
-      // Extract context for the error
-      var startLine = Math.max(0, line - 2);
-      var endLine = Math.min(codeMirrorInstance.lineCount() - 1, line + 2);
+      codeMirrorInstance.markText(markStart, markEnd, { className: 'error-location' });
+      
+      // Scroll to the error location with more context
+      codeMirrorInstance.scrollIntoView({ line: line, ch: column }, 200);
+      
+      // Extract context for the error with more lines for better context
+      var startLine = Math.max(0, line - 3);
+      var endLine = Math.min(codeMirrorInstance.lineCount() - 1, line + 3);
       var contextLines = [];
       
       for (var i = startLine; i <= endLine; i++) {
         var prefix = (i === line) ? '► ' : '  ';
         var lineContent = codeMirrorInstance.getLine(i);
+        var lineNum = (i + 1).toString().padStart(3, ' '); // Line numbers with padding
         
-        // Highlight the exact position of the error
-        if (i === line && column >= 0 && column < lineContent.length) {
-          var before = lineContent.substring(0, column);
-          var char = lineContent.substring(column, column + 1);
-          var after = lineContent.substring(column + 1);
+        // Highlight the exact position of the error with more context
+        if (i === line) {
+          // Ensure we don't go beyond string bounds
+          var highlightStart = Math.max(0, column - 10);
+          var highlightEnd = Math.min(lineContent.length, column + 20);
           
-          lineContent = before + '<span class="error-marker">' + char + '</span>' + after;
+          var before = lineContent.substring(0, column);
+          var errorPart = '';
+          var after = '';
+          
+          if (errorInfo.type === 'unquoted' || errorInfo.type === 'invalid-property') {
+            // For property name errors, highlight the whole property
+            var propLength = errorInfo.value ? errorInfo.value.length : 1;
+            errorPart = lineContent.substring(column, column + propLength);
+            after = lineContent.substring(column + propLength);
+          } else {
+            // For other errors just highlight a character
+            errorPart = lineContent.substring(column, column + 1);
+            after = lineContent.substring(column + 1);
+          }
+          
+          // If error is at the end of the line, suggest missing comma
+          if (column >= lineContent.length - 1 && errorTitle.includes('Missing comma')) {
+            after = after + '<span class="error-suggestion">,</span>';
+          }
+          
+          // For property errors, suggest the proper format
+          if (errorInfo.type === 'unquoted') {
+            errorPart = '<span class="error-marker">' + errorPart + '</span>';
+          } else if (errorInfo.type === 'invalid-property') {
+            errorPart = '<span class="error-marker">' + errorPart + '</span>';
+          } else {
+            errorPart = '<span class="error-marker">' + errorPart + '</span>';
+          }
+          
+          lineContent = before + errorPart + after;
+          
+          // Add a marker line pointing to the error position
+          var spacesBeforeError = ' '.repeat(prefix.length + lineNum.length + 2 + column);
+          var markerSymbol = '↑';
+          
+          contextLines.push(prefix + lineNum + ': ' + lineContent);
+          
+          // Additional hint for property errors
+          if (errorInfo.type === 'unquoted') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing quotes around property name');
+          } else if (errorInfo.type === 'invalid-property') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Property name needs double quotes');
+          } else {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol);
+          }
+        } else {
+          contextLines.push(prefix + lineNum + ': ' + lineContent);
         }
-        
-        contextLines.push(prefix + lineContent);
       }
       
       var errorContext = contextLines.join('\n');
       
-      // Construct a detailed error message
+      // Construct a more detailed error message with clearer context
       var detailedError = 'Invalid JSON: ' + errorTitle + '\n';
       detailedError += 'At line ' + (line + 1) + ', column ' + (column + 1) + ':\n';
       detailedError += '\n' + errorContext + '\n\n';
       
-      // Add suggestion if provided
+      // Add suggestion if provided with more specificity
       if (errorSuggestion) {
-        detailedError += errorSuggestion;
+        detailedError += 'Suggestion: ' + errorSuggestion;
+        
+        // Add specific suggestion based on error type
+        if (errorTitle.includes('Missing comma')) {
+          detailedError += '\nYou need to add a comma between this property and the next one.';
+        } else if (errorTitle.includes('Trailing comma')) {
+          detailedError += '\nRemove the last comma in this list.';
+        } else if (errorInfo.type === 'unquoted' || errorInfo.type === 'invalid-property') {
+          detailedError += '\nJSON property names must always be enclosed in double quotes.';
+        }
       }
       
-      // Display error in feedback element with line breaks preserved
+      // Display error in feedback element with line breaks preserved and styling
       feedbackElement.innerHTML = detailedError.replace(/\n/g, '<br>');
       feedbackElement.className = "alert alert-danger";
     }
@@ -1288,18 +1363,79 @@
         
         // If we have an even number of quotes before this match, it's not inside a string
         if (quoteCount % 2 === 0) {
+          // Get more context for the error
+          var lineStart = beforeMatch.lastIndexOf('\n') + 1;
+          if (lineStart === 0) lineStart = 0;
+          var lineEnd = jsonText.indexOf('\n', match.index);
+          if (lineEnd === -1) lineEnd = jsonText.length;
+          
+          var lineContent = jsonText.substring(lineStart, lineEnd);
+          var columnInLine = match.index - lineStart;
+          
           // Calculate line and column
           var lines = beforeMatch.split('\n');
           var line = lines.length - 1;
-          var column = lines[line].length;
+          var column = match.index - beforeMatch.lastIndexOf('\n') - 1;
           
           return {
             line: line,
             column: column,
             type: 'unquoted',
-            value: match[1]
+            value: match[1],
+            lineContent: lineContent,
+            columnInLine: columnInLine
           };
         }
+      }
+      
+      // Additional check for property names that are neither quoted nor valid identifiers
+      // This helps catch syntax errors like {asdd:"sd"} where asdd should be quoted
+      var braceOpenPositions = [];
+      var potentialErrors = [];
+      
+      // Find all open braces positions
+      var bracePatt = /\{/g;
+      while ((match = bracePatt.exec(jsonText)) !== null) {
+        braceOpenPositions.push(match.index);
+      }
+      
+      // For each open brace, check for invalid property patterns
+      for (var i = 0; i < braceOpenPositions.length; i++) {
+        var bracePos = braceOpenPositions[i];
+        var nextChar = jsonText.substring(bracePos + 1).trim()[0];
+        
+        // If next non-whitespace char isn't a quote or closing brace, it might be an invalid property
+        if (nextChar && nextChar !== '"' && nextChar !== "'" && nextChar !== '}') {
+          // Extract the text after the brace until the next colon
+          var textAfterBrace = jsonText.substring(bracePos + 1);
+          var colonPos = textAfterBrace.indexOf(':');
+          
+          if (colonPos > 0) {
+            var propertyText = textAfterBrace.substring(0, colonPos).trim();
+            
+            // If it contains spaces or special chars that would make it invalid for an identifier
+            if (propertyText.match(/[^\w$]/) || propertyText === '') {
+              // Calculate line and column
+              var textBeforeError = jsonText.substring(0, bracePos + 1);
+              var lines = textBeforeError.split('\n');
+              var line = lines.length - 1;
+              var column = bracePos + 1 - (textBeforeError.lastIndexOf('\n') + 1);
+              
+              potentialErrors.push({
+                line: line,
+                column: column,
+                type: 'invalid-property',
+                value: propertyText,
+                bracePos: bracePos
+              });
+            }
+          }
+        }
+      }
+      
+      // Return the first potential error if we found any
+      if (potentialErrors.length > 0) {
+        return potentialErrors[0];
       }
       
       return null;

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Tree Editor</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- CodeMirror for line numbers -->
+  <link rel="stylesheet" href="assets/js/codemirror/codemirror.min.css">
+  <link rel="stylesheet" href="assets/js/codemirror/monokai.min.css">
+  <link rel="stylesheet" href="custom.css">
+</head>
+
+<body>
+  <div class="mx-4 mt-4 mb-5">
+    <h1 class="display-8 mb-4">JSON Tree Editor</h1>
+
+    <div class="row template-navigation">
+      <div class="col-md-6">
+        <div class="btn-group" role="group">
+          <a href="index.html" class="btn btn-primary">Main Editor Dynamic</a>
+          <a href="template-sample-a.html" class="btn btn-outline-primary">Template Fixed A</a>
+          <a href="template-sample-b.html" class="btn btn-outline-primary">Template Fixed B</a>
+          <!-- <a href="template-sample-c.html" class="btn btn-outline-primary">Template C</a>
+          <a href="template-sample-d.html" class="btn btn-outline-primary">Template D</a> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card json-textarea">
+          <div class="card-header">
+            <h5 class="mb-0 py-2"><i class="bi bi-braces"></i> JSON Input</h5>
+            <div id="feedback" class="rounded"></div>
+          </div>
+          <div class="card-body text-area-container">
+            <!-- CodeMirror container -->
+            <div id="jsonInputContainer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 px-4">
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5 class="mb-0 p-1"><i class="bi bi-tree"></i> JSON Tree View</h5>
+          </div>
+          <div class="card-body" id="editor">
+            <!-- Editor will be rendered here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 px-4">
+        <div class="card mt-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Help</h5>
+          </div>
+          <div class="card-body">
+            <p><i class="bi bi-dot"></i> <strong>Editing:</strong> Click on any value to edit it directly.</p>
+            <p><i class="bi bi-dot"></i> <strong>Adding:</strong> Click the + icon to add items from templates or create
+              empty values.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting:</strong> Hover over any line and click the × icon that
+              appears to delete it.</p>
+            <p><i class="bi bi-dot"></i> <strong>Deleting Keys:</strong> Hover over any key and click the smaller × icon
+              that appears next to the key to delete that specific key-value pair.</p>
+            <p><i class="bi bi-dot"></i> <strong>Expanding/Collapsing:</strong> Click the ▼/► icons to expand or
+              collapse objects and arrays.</p>
+            <p><i class="bi bi-dot"></i> <strong>Templates:</strong> When adding new items, select from predefined
+              templates with fixed and dynamic values.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample Data -->
+  <script>
+    // Sample data provided by the user.
+    var sampleData = [
+      {
+        "text_label": "Attractions & Tours",
+        "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/discover",
+        "items": [
+          {
+            "text_label": "Singapore Cable Car",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/discover/cable-car/",
+            "items": [],
+            "sortOrder": 1,
+            "active": 1
+          },
+          {
+            "text_label": "Wings of Time",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/discover/wings-of-time",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "SkyHelix Sentosa",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/skyhelix-sentosa-open-dated/11593",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "Sentosa Island Bus Tour",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/sentosa-island-bus-tour/5029",
+            "items": [],
+            "sortOrder": 3,
+            "active": 1
+          },
+          {
+            "text_label": "Dino Time",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/air-combat-above-12-years-old/5034",
+            "items": [],
+            "sortOrder": 4,
+            "active": 1
+          }
+        ],
+        "sortOrder": 1,
+        "active": 1
+      },
+      {
+        "text_label": "Packages",
+        "url": "https://uat-mflgenterprise-online.globaltix.com/packages/discover",
+        "items": [
+          {
+            "text_label": "Cable Car Flexi Pass (Choose 2)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-flexi-pass-choose-2/166721",
+            "items": [],
+            "sortOrder": 2,
+            "active": 1
+          },
+          {
+            "text_label": "Cable Car Flexi Pass (Choose 4)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-flexi-pass-choose-4/166722",
+            "items": [],
+            "sortOrder": 3,
+            "active": 1
+          },
+          {
+            "text_label": "Cable Car Sky Pass + Madame Tussauds",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/cable-car-sky-pass-madame-tussauds/169758",
+            "items": [],
+            "sortOrder": 4,
+            "active": 1
+          },
+          {
+            "text_label": "Sky Pass (Round Trip) + SkyOrb Cabin (One-way experience)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/fly-and-seaa/13536",
+            "items": [],
+            "sortOrder": 5,
+            "active": 1
+          },
+          {
+            "text_label": "Fly and Explore (Sky Pass Unlimited + SkyHelix + S.E.A. Aquarium)",
+            "url": "https://uat-mflgenterprise-online.globaltix.com/packages/product/fly-and-seaa/13536",
+            "items": [],
+            "sortOrder": 6,
+            "active": 1
+          }
+        ],
+        "sortOrder": 2,
+        "active": 1
+      },
+      {
+        "text_label": "Cable Car Sky Dining",
+        "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/product/sky-dining/49732",
+        "items": [],
+        "sortOrder": 3,
+        "active": 1
+      }
+    ]
+
+    // Function to check which object has the most complete values
+    function findMostCompleteData(data) {
+      let mostComplete = {
+        item: null,
+        score: 0,
+        path: ""
+      };
+
+      function calculateScore(obj, path = "") {
+        if (!obj || typeof obj !== 'object') return 0;
+        
+        // Start with counting direct keys
+        const keys = Object.keys(obj);
+        let score = keys.length;
+        let currentPath = path;
+        
+        // Check arrays - add points for non-empty arrays, penalize empty ones
+        for (const key of keys) {
+          if (Array.isArray(obj[key])) {
+            // If array has items, add bonus points based on array length
+            if (obj[key].length > 0) {
+              score += obj[key].length;
+            } else {
+              // Penalize empty arrays by giving less value than populated ones
+              score -= 0.5; // Empty arrays are considered less complete
+            }
+          }
+        }
+        
+        // Check if this object has a better score than our current most complete
+        if (score > mostComplete.score) {
+          mostComplete.item = obj;
+          mostComplete.score = score;
+          mostComplete.path = currentPath;
+        }
+        
+        // If this object has an items array, check each item recursively
+        if (Array.isArray(obj.items)) {
+          obj.items.forEach((item, index) => {
+            let itemPath = path ? `${path} → ${obj.text_label || 'item'} → ${item.text_label || `index ${index}`}` : `${obj.text_label || 'item'} → ${item.text_label || `index ${index}`}`;
+            calculateScore(item, itemPath);
+          });
+        }
+      }
+
+      // Start the recursive check for each top-level item
+      data.forEach((item, index) => {
+        let itemPath = item.text_label || `index ${index}`;
+        calculateScore(item, itemPath);
+      });
+
+      return mostComplete;
+    }
+
+    // Call the function and log the result
+    document.addEventListener('DOMContentLoaded', function() {
+      const mostCompleteData = findMostCompleteData(sampleData);
+      console.log("Most complete data item:", mostCompleteData.item);
+      console.log("Completeness score:", mostCompleteData.score);
+      console.log("Path:", mostCompleteData.path);
+    });
+
+    // Define templates for main page
+    var mainTemplates = {
+    };
+  </script>
+  <!-- / Sample Data -->
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- CodeMirror for line numbers -->
+  <script src="assets/js/codemirror/codemirror.min.js"></script>
+  <script src="assets/js/codemirror/javascript.min.js"></script>
+  <script src="assets/js/codemirror/matchbrackets.min.js"></script>
+  <script src="assets/js/codemirror/lint.min.js"></script>
+  <script src="assets/js/codemirror/json-lint-js.min.js"></script>
+
+  <!-- Include the editor plugin -->
+  <script src="DynamicJSONEditor.js"></script>
+
+  <!-- Initialize Editor -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize CodeMirror for JSON editor
+      var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {
+        value: JSON.stringify(sampleData, null, 2),
+        mode: { name: "javascript", json: true },
+        theme: "default",
+        lineNumbers: true,
+        matchBrackets: true,
+        indentUnit: 2,
+        tabSize: 2,
+        lineWrapping: true,
+        readOnly: false
+      });
+
+      // Get feedback element
+      var feedback = document.getElementById('feedback');
+
+      // Initialize the Dynamic JSON Editor with CodeMirror
+      var editorInstance = DynamicJSONEditor.initWithCodeMirror("editor", codeMirror, sampleData, {
+        sampleData: sampleData,
+        templates: mainTemplates,
+        feedbackElement: feedback,
+        buttons: {
+          showFormat: true,
+          showClear: true,
+          showSample: true,
+          showExpand: true,
+          showCollapse: true
+        },
+        onUpdate: function (data) {
+          console.log("JSON data updated:", data);
+        }
+      });
+    });
+  </script>
+  <!-- / Initialize Editor -->
+</body>
+
+</html> 

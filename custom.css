@@ -106,11 +106,12 @@
   position: relative;
 }
 
-.error-location {
+.error-text {
   background-color: #ff6b6b !important;
   color: white !important;
   border-radius: 2px;
   text-decoration: wavy underline red;
+  cursor: help;
 }
 
 .error-location-line {
@@ -124,6 +125,7 @@
   overflow-y: auto;
 }
 
+/* Enhanced error feedback styling */
 /* Error context highlighting */
 .alert-danger {
   background-color: #f8d7da;
@@ -140,15 +142,91 @@
   width: 100%;
 }
 
+/* Added enhanced error message components */
+.error-header {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: #d32f2f;
+  border-bottom: 1px solid #f1aeb5;
+  padding-bottom: 6px;
+}
+
+.error-location {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #721c24;
+}
+
+.error-context {
+  background-color: #2b2b2b;
+  color: #f8f8f2;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: auto;
+}
+
+.error-context pre {
+  margin: 0;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.error-pointer {
+  color: #ff5252;
+  font-weight: bold;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+.error-pointer pre {
+  margin: 0;
+  padding: 0 10px;
+  font-family: 'Courier New', monospace;
+}
+
+.error-suggestion {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 8px 12px;
+  border-left: 4px solid #ffeeba;
+  margin-bottom: 8px;
+  border-radius: 0 4px 4px 0;
+}
+
+.error-fix-hint {
+  font-style: italic;
+  color: #6c757d;
+  margin-top: 8px;
+  font-size: 0.9em;
+}
+
 /* CSS for the CodeMirror error highlighting */
 .CodeMirror .error-line {
   background-color: rgba(255, 200, 200, 0.8);
 }
 
-.CodeMirror .error-location {
-  background-color: #ff6b6b;
-  color: white;
-  text-decoration: wavy underline red;
+.CodeMirror .error-text {
+  background-color: #ff5252 !important;
+  color: white !important;
+  border-radius: 2px;
+  padding: 0 2px;
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 82, 82, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+  }
 }
 
 .CodeMirror-dialog {
@@ -317,4 +395,42 @@
   color: #721c24;
   padding: 10px 15px;
   border-radius: 4px;
+}
+
+.error-marker {
+  color: #ff0000 !important;
+  font-weight: bold !important;
+  font-size: 1.2em !important;
+  animation: pulse 1s infinite;
+  display: inline-block;
+}
+
+.error-code {
+  color: #ff0000;
+  font-family: monospace;
+  font-weight: bold;
+  background-color: #fff0f0;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Improved styling for property errors */
+.alert-danger .error-marker {
+  padding: 0 1px;
+  border-radius: 2px;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.alert-danger .error-suggestion, .alert-danger .error-code {
+  font-family: monospace;
+  line-height: 1.4;
+  display: inline-block;
+  margin: 0 2px;
 }

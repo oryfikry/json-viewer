@@ -1149,6 +1149,23 @@
         // Mark the entire property name
         var propLength = errorInfo.value ? errorInfo.value.length : 1;
         markEnd = { line: line, ch: column + propLength };
+      } else if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property') {
+        // For missing comma after bracket or between properties, mark the position where the comma should be
+        markEnd = { line: line, ch: column + 1 };
+        
+        // If this is a missing comma at a line break, also highlight the next line
+        if (errorInfo.lineBreak && line + 1 < codeMirrorInstance.lineCount()) {
+          codeMirrorInstance.addLineClass(line + 1, 'background', 'error-line');
+        }
+      } else if (errorInfo.type === 'array-closing') {
+        // For missing comma after array closing bracket
+        markStart = { line: line, ch: column };
+        markEnd = { line: line, ch: column + 1 };
+        
+        // If there's a line break, highlight both lines to show where comma should go
+        if (errorInfo.lineBreak && line + 1 < codeMirrorInstance.lineCount()) {
+          codeMirrorInstance.addLineClass(line + 1, 'background', 'error-line');
+        }
       } else {
         // Default to marking a small section
         markEnd = { line: line, ch: Math.min(lineLength, column + 3) };
@@ -1179,14 +1196,36 @@
           var errorPart = '';
           var after = '';
           
-          if (errorInfo.type === 'unquoted' || errorInfo.type === 'invalid-property') {
+          // For special case of missing comma after array/object
+          if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property') {
+            errorPart = lineContent.substring(column, column + 1) || ' ';
+            after = (lineContent.substring(column + 1) || '') +
+                    (errorInfo.lineBreak ? '\n' + (errorInfo.nextLineContent || '') : '');
+            
+            // Show the suggested fix - add a comma
+            after = after.substring(0, 0) + '<span class="error-suggestion">,</span>' + after.substring(0);
+          } else if (errorInfo.type === 'array-closing') {
+            // Special handling for missing comma after array closing bracket
+            errorPart = lineContent.substring(column, column + 1) || ' ';
+            
+            // If we have the bracket on this line and property on next line
+            if (errorInfo.lineBreak) {
+              after = (lineContent.substring(column + 1) || '') + '\n' + (errorInfo.nextLineContent || '');
+              // Insert comma suggestion right after the bracket
+              after = '<span class="error-suggestion">,</span>' + after;
+            } else {
+              after = lineContent.substring(column + 1) || '';
+              // Insert comma suggestion right after the bracket
+              after = '<span class="error-suggestion">,</span>' + after;
+            }
+          } else if (errorInfo.type === 'unquoted' || errorInfo.type === 'invalid-property') {
             // For property name errors, highlight the whole property
             var propLength = errorInfo.value ? errorInfo.value.length : 1;
             errorPart = lineContent.substring(column, column + propLength);
             after = lineContent.substring(column + propLength);
           } else {
             // For other errors just highlight a character
-            errorPart = lineContent.substring(column, column + 1);
+            errorPart = lineContent.substring(column, column + 1) || ' ';
             after = lineContent.substring(column + 1);
           }
           
@@ -1195,10 +1234,11 @@
             after = after + '<span class="error-suggestion">,</span>';
           }
           
-          // For property errors, suggest the proper format
+          // For various error types, provide visual cues
           if (errorInfo.type === 'unquoted') {
             errorPart = '<span class="error-marker">' + errorPart + '</span>';
-          } else if (errorInfo.type === 'invalid-property') {
+          } else if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property') {
+            // For missing comma errors, mark where the comma should be
             errorPart = '<span class="error-marker">' + errorPart + '</span>';
           } else {
             errorPart = '<span class="error-marker">' + errorPart + '</span>';
@@ -1213,12 +1253,20 @@
           contextLines.push(prefix + lineNum + ': ' + lineContent);
           
           // Additional hint for property errors
+          console.log(errorInfo,errorTitle,errorSuggestion);
           if (errorInfo.type === 'unquoted') {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol + ' Missing quotes around property name');
-          } else if (errorInfo.type === 'invalid-property') {
+          } else if (errorInfo.type === 'bracket') {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
-                              spacesBeforeError + markerSymbol + ' Property name needs double quotes');
+                              spacesBeforeError + markerSymbol + ' Missing comma after ' + 
+                              (errorInfo.before === ']' ? 'closing bracket ]' : 'closing brace }'));
+          } else if (errorInfo.type === 'property-property') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing comma between properties');
+          } else if (errorInfo.type === 'array-closing') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing comma after array');
           } else {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol);
@@ -1240,7 +1288,16 @@
         detailedError += 'Suggestion: ' + errorSuggestion;
         
         // Add specific suggestion based on error type
-        if (errorTitle.includes('Missing comma')) {
+        if (errorInfo.type === 'bracket') {
+          detailedError += '\nYou need to add a comma after the ' + 
+                          (errorInfo.before === ']' ? 'closing bracket ]' : 'closing brace }') + 
+                          ' and before the next property.';
+        } else if (errorInfo.type === 'property-property') {
+          detailedError += '\nYou need to add a comma between the properties.';
+        } else if (errorInfo.type === 'array-closing') {
+          detailedError += '\nYou need to add a comma after the empty array (]) and before the "' + 
+                          errorInfo.after.replace(/^"([^"]+)".*$/, '$1') + '" property.';
+        } else if (errorTitle.includes('Missing comma')) {
           detailedError += '\nYou need to add a comma between this property and the next one.';
         } else if (errorTitle.includes('Trailing comma')) {
           detailedError += '\nRemove the last comma in this list.';
@@ -1308,6 +1365,12 @@
       var objectMissingComma = /("[^"]*":|[0-9]+)\s*("[^"]*":)/g;
       var arrayMissingComma = /("[^"]*"|true|false|null|[0-9]+)\s*("[^"]*"|true|false|null|[0-9]+)/g;
       
+      // Add pattern for missing comma after array/object closing brackets followed by another property
+      var bracketMissingComma = /(\]|\})\s*(?:\r?\n|\r|\s)*("[^"]*":)/g;
+      
+      // Special pattern for missing comma after array closing bracket - matches the exact example case
+      var arrayClosingMissingComma = /"items"\s*:\s*\[\s*\]\s*(?:\r?\n|\r|\s)+("(?:sortOrder|[^"]+)"\s*:)/g;
+      
       // Find potential missing commas
       var matches = [];
       var match;
@@ -1316,7 +1379,9 @@
       while ((match = objectMissingComma.exec(jsonText)) !== null) {
         matches.push({
           index: match.index + match[1].length,
-          type: 'object'
+          type: 'object',
+          before: match[1],
+          after: match[2]
         });
       }
       
@@ -1324,26 +1389,106 @@
       while ((match = arrayMissingComma.exec(jsonText)) !== null) {
         matches.push({
           index: match.index + match[1].length,
-          type: 'array'
+          type: 'array',
+          before: match[1],
+          after: match[2]
         });
       }
       
+      // Check for missing commas after array/object closing brackets
+      while ((match = bracketMissingComma.exec(jsonText)) !== null) {
+        matches.push({
+          index: match.index + match[1].length,
+          type: 'bracket',
+          before: match[1],
+          after: match[2],
+          lineBreak: true
+        });
+      }
+      
+      // Special check for missing comma after array closing bracket - prioritize this pattern
+      while ((match = arrayClosingMissingComma.exec(jsonText)) !== null) {
+        // Find the closing bracket position
+        var closingBracketPos = match.index + match[0].indexOf(']') + 1;
+        
+        // Create a high-priority match for this specific case
+        matches.push({
+          index: closingBracketPos,
+          type: 'array-closing',
+          before: ']',
+          after: match[1],
+          lineBreak: true,
+          priority: 10  // Higher priority to handle this case first
+        });
+      }
+      
+      // Special check for property followed by property without comma
+      var propertyFollowedByPropertyPattern = /"[^"]*"\s*:\s*(\[[^\]]*\]|\{[^}]*\}|"[^"]*"|true|false|null|\d+)\s*(?:\r?\n|\r|\s)(?:"[^"]*")/g;
+      while ((match = propertyFollowedByPropertyPattern.exec(jsonText)) !== null) {
+        // Verify this isn't a valid object with comma by checking context
+        var followingText = jsonText.substring(match.index + match[0].length - 1);
+        var nextNonWhitespace = followingText.match(/\S/);
+        
+        // If the next non-whitespace character isn't a comma or closing brace/bracket, we have a missing comma
+        if (nextNonWhitespace && nextNonWhitespace[0] !== ',' && nextNonWhitespace[0] !== '}' && nextNonWhitespace[0] !== ']') {
+          matches.push({
+            index: match.index + match[0].length - 1, // Position right after the value
+            type: 'property-property',
+            before: match[1],
+            after: '"' + followingText.split('"')[1] + '"', // Get the next property name
+            contextStart: Math.max(0, match.index - 10),
+            contextEnd: Math.min(jsonText.length, match.index + match[0].length + 20)
+          });
+        }
+      }
+      
       if (matches.length > 0) {
-        // Find the first occurrence
+        // Find the first occurrence, prioritizing high-priority matches
         var firstMatch = matches.reduce(function(min, current) {
+          // If current has a priority, use it for comparison
+          if (current.priority && (!min.priority || current.priority > min.priority)) {
+            return current;
+          }
+          // Otherwise, default to index comparison
           return current.index < min.index ? current : min;
         }, matches[0]);
         
-        // Calculate line and column
+        // Calculate line and column for the missing comma
         var textBeforeError = jsonText.substring(0, firstMatch.index);
         var lines = textBeforeError.split('\n');
         var line = lines.length - 1;
         var column = lines[line].length;
         
+        // Get more context around the error
+        var lineStart = textBeforeError.lastIndexOf('\n') + 1;
+        if (lineStart === 0) lineStart = 0;
+        
+        var lineEnd = jsonText.indexOf('\n', firstMatch.index);
+        if (lineEnd === -1) lineEnd = jsonText.length;
+        
+        var errorLineContent = jsonText.substring(lineStart, lineEnd);
+        
+        // Get next line for context when error is at line break
+        var nextLineContent = "";
+        if (firstMatch.lineBreak && lineEnd < jsonText.length) {
+          var nextLineEnd = jsonText.indexOf('\n', lineEnd + 1);
+          if (nextLineEnd === -1) nextLineEnd = jsonText.length;
+          nextLineContent = jsonText.substring(lineEnd + 1, nextLineEnd);
+        }
+        
         return {
           line: line,
           column: column,
-          type: firstMatch.type
+          type: firstMatch.type,
+          before: firstMatch.before,
+          after: firstMatch.after,
+          lineBreak: firstMatch.lineBreak,
+          errorLineContent: errorLineContent,
+          nextLineContent: nextLineContent,
+          fullContext: jsonText.substring(
+            Math.max(0, lineStart - 50), 
+            Math.min(jsonText.length, lineEnd + 100)
+          )
         };
       }
       

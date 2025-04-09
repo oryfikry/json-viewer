@@ -381,7 +381,7 @@
   color: white !important;
   border-radius: 2px;
   text-decoration: wavy underline red;
-  animation: pulse 1s infinite;
+  animation: pulse 3s infinite;
 }
 
 #feedback {

@@ -1134,6 +1134,22 @@
         var match;
         var errorInfo = null;
         
+        // Check for incorrect bracket patterns
+        errorInfo = detectIncorrectBrackets(jsonText);
+        if (errorInfo) {
+          if (errorInfo.type === 'missing-colon') {
+            highlightAndReportError(errorInfo, errorInfo.message, 
+              'JSON property names must be followed by a colon. The correct format is "' + errorInfo.property + '": []');
+          } else {
+            highlightAndReportError(errorInfo, errorInfo.message, 
+              errorInfo.type === 'missing-open-bracket' 
+                ? 'The array must begin with an opening bracket [. Format should be "items": []' 
+                : 'Remove the comma in the empty array. Format should be "items": []');
+          }
+          return null;
+        }
+        
+        // Check for common patterns
         while ((match = unexpectedAfterStringRegex.exec(jsonText)) !== null) {
           // Make sure it's not inside another string
           var beforeMatch = jsonText.substring(0, match.index);
@@ -1184,7 +1200,7 @@
             return null;
           }
           
-          highlightAndReportError(errorInfo, 'Missing comma detected', 
+          highlightAndReportError(errorInfo, 'Missing comma or : detected', 
             'JSON requires commas between array elements or object properties. Add a comma after this item.');
           return null;
         }
@@ -1540,6 +1556,15 @@
           } else if (errorInfo.type === 'objects-in-array') {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol + ' Missing comma between objects in array');
+          } else if (errorInfo.type === 'missing-open-bracket') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing opening bracket for array');
+          } else if (errorInfo.type === 'extra-comma-empty-array') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Unnecessary comma in empty array');
+          } else if (errorInfo.type === 'missing-colon') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing colon between property name and value');
           } else {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol);
@@ -2230,6 +2255,112 @@
           type: 'single-quote',
           value: match[0]
         };
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect incorrect bracket patterns
+    function detectIncorrectBrackets(jsonText) {
+      // Look for pattern: "items": ],
+      var missingOpenBracketPattern = /"items"\s*:\s*\]/g;
+      // Look for pattern: "items": [,
+      var emptyArrayWithCommaPattern = /"items"\s*:\s*\[\s*,/g;
+      // Look for pattern: "items" [] (missing colon)
+      var missingColonPattern = /"([^"]*?)"\s+(\[|\{|\d+|")/g;
+      
+      var match;
+      
+      // Check for missing colon between property name and value
+      while ((match = missingColonPattern.exec(jsonText)) !== null) {
+        // Verify this match is not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Make sure we don't have a colon between the property name and value
+          var propertyEnd = match.index + match[0].length - match[2].length;
+          var betweenText = jsonText.substring(match.index + match[0].indexOf('"', 1) + 1, propertyEnd);
+          
+          // If there's no colon in between, it's a missing colon error
+          if (!betweenText.includes(':')) {
+            // Calculate line and column - point to where the colon should be
+            var colonPos = match.index + match[0].indexOf('"', 1) + 1;
+            var textBeforeError = jsonText.substring(0, colonPos);
+            var lines = textBeforeError.split('\n');
+            var line = lines.length - 1;
+            var column = colonPos - (textBeforeError.lastIndexOf('\n') + 1);
+            if (textBeforeError.lastIndexOf('\n') === -1) {
+              column = colonPos;
+            }
+            
+            return {
+              line: line,
+              column: column,
+              type: 'missing-colon',
+              value: match[0],
+              property: match[1],
+              message: 'Missing colon after property name'
+            };
+          }
+        }
+      }
+      
+      // Check for missing opening bracket
+      while ((match = missingOpenBracketPattern.exec(jsonText)) !== null) {
+        // Verify this match is not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Calculate line and column - point to the closing bracket
+          var bracketPos = match.index + match[0].indexOf(']');
+          var textBeforeError = jsonText.substring(0, bracketPos);
+          var lines = textBeforeError.split('\n');
+          var line = lines.length - 1;
+          var column = bracketPos - (textBeforeError.lastIndexOf('\n') + 1);
+          if (textBeforeError.lastIndexOf('\n') === -1) {
+            column = bracketPos;
+          }
+          
+          return {
+            line: line,
+            column: column,
+            type: 'missing-open-bracket',
+            value: match[0],
+            message: 'Missing opening bracket for array'
+          };
+        }
+      }
+      
+      // Check for empty array with comma
+      while ((match = emptyArrayWithCommaPattern.exec(jsonText)) !== null) {
+        // Verify this match is not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Calculate line and column - point to the comma
+          var commaPos = match.index + match[0].indexOf(',');
+          var textBeforeError = jsonText.substring(0, commaPos);
+          var lines = textBeforeError.split('\n');
+          var line = lines.length - 1;
+          var column = commaPos - (textBeforeError.lastIndexOf('\n') + 1);
+          if (textBeforeError.lastIndexOf('\n') === -1) {
+            column = commaPos;
+          }
+          
+          return {
+            line: line,
+            column: column,
+            type: 'extra-comma-empty-array',
+            value: match[0],
+            message: 'Unnecessary comma in empty array'
+          };
+        }
       }
       
       return null;

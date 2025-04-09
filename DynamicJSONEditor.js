@@ -1656,7 +1656,7 @@
       
       // NEW: Check for missing commas between objects in arrays
       while ((match = objectsInArrayPattern.exec(jsonText)) !== null) {
-        // Check that this isn't inside a string
+        // Make sure this pattern is not inside a string (like a URL with numbers)
         var beforeMatch = jsonText.substring(0, match.index);
         var quoteCount = (beforeMatch.match(/"/g) || []).length;
         
@@ -1686,68 +1686,136 @@
       
       // Check for missing commas in objects
       while ((match = objectMissingComma.exec(jsonText)) !== null) {
-        matches.push({
-          index: match.index + match[1].length,
-          type: 'object',
-          before: match[1],
-          after: match[2]
-        });
+        // Verify this match is not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Make sure we're not matching numbers inside a URL string
+          // Look back to find if this is a standalone property or inside a URL
+          var contextBefore = jsonText.substring(Math.max(0, match.index - 100), match.index);
+          var lastQuotePos = contextBefore.lastIndexOf('"');
+          var isInUrl = lastQuotePos > -1 && 
+                       (contextBefore.substring(lastQuotePos).includes("http") || 
+                        contextBefore.substring(lastQuotePos).includes("/") ||
+                        contextBefore.substring(lastQuotePos).includes("\\"));
+          
+          if (!isInUrl) {
+            matches.push({
+              index: match.index + match[1].length, // Position right after the first group
+              type: 'property-property',
+              before: match[1],
+              after: match[2]
+            });
+          }
+        }
       }
       
       // Check for missing commas in arrays
       while ((match = arrayMissingComma.exec(jsonText)) !== null) {
-        matches.push({
-          index: match.index + match[1].length,
-          type: 'array',
-          before: match[1],
-          after: match[2]
-        });
+        // Verify this match is not inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Additional check to avoid false positives with URLs containing numbers
+          var firstValue = match[1];
+          var secondValue = match[2];
+          
+          // Skip if this might be a URL with numbers (checking for common URL patterns)
+          var potentialUrl = firstValue + secondValue;
+          var isLikelyUrl = potentialUrl.includes("http") || 
+                           potentialUrl.includes("://") || 
+                           potentialUrl.includes("/") ||
+                           (potentialUrl.includes(".") && potentialUrl.includes("/"));
+          
+          if (!isLikelyUrl) {
+            matches.push({
+              index: match.index + firstValue.length, // Position right after the first value
+              type: 'array-element',
+              before: firstValue,
+              after: secondValue
+            });
+          }
+        }
       }
       
       // Check for missing commas after array/object closing brackets
       while ((match = bracketMissingComma.exec(jsonText)) !== null) {
-        matches.push({
-          index: match.index + match[1].length,
-          type: 'bracket',
-          before: match[1],
-          after: match[2],
-          lineBreak: true
-        });
+        // Verify this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + match[1].length,
+            type: 'bracket',
+            before: match[1],
+            after: match[2],
+            lineBreak: true
+          });
+        }
       }
       
       // Special check for missing comma after array closing bracket - prioritize this pattern
       while ((match = arrayClosingMissingComma.exec(jsonText)) !== null) {
-        // Find the closing bracket position
-        var closingBracketPos = match.index + match[0].indexOf(']') + 1;
+        // Verify this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
         
-        // Create a high-priority match for this specific case
-        matches.push({
-          index: closingBracketPos,
-          type: 'array-closing',
-          before: ']',
-          after: match[1],
-          lineBreak: true,
-          priority: 10  // Higher priority to handle this case first
-        });
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Find the closing bracket position
+          var closingBracketPos = match.index + match[0].indexOf(']') + 1;
+          
+          // Create a high-priority match for this specific case
+          matches.push({
+            index: closingBracketPos,
+            type: 'array-closing',
+            before: ']',
+            after: match[1],
+            lineBreak: true,
+            priority: 10  // Higher priority to handle this case first
+          });
+        }
       }
       
       // Special check for property followed by property without comma
       var propertyFollowedByPropertyPattern = /"[^"]*"\s*:\s*(\[[^\]]*\]|\{[^}]*\}|"[^"]*"|true|false|null|\d+)\s*(?:\r?\n|\r|\s)(?:"[^"]*")/g;
       while ((match = propertyFollowedByPropertyPattern.exec(jsonText)) !== null) {
-        // Verify this isn't a valid object with comma by checking context
-        var followingText = jsonText.substring(match.index + match[0].length - 1);
-        var nextNonWhitespace = followingText.match(/\S/);
+        // Verify this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
         
-        // If the next non-whitespace character isn't a comma or closing brace/bracket, we have a missing comma
-        if (nextNonWhitespace && nextNonWhitespace[0] !== ',' && nextNonWhitespace[0] !== '}' && nextNonWhitespace[0] !== ']') {
-          matches.push({
-            index: match.index + match[0].length - 1, // Position right after the value
-            type: 'property-property',
-            before: match[1],
-            after: '"' + followingText.split('"')[1] + '"', // Get the next property name
-            contextStart: Math.max(0, match.index - 10),
-            contextEnd: Math.min(jsonText.length, match.index + match[0].length + 20)
-          });
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Check if this might be a URL or path with numbers to avoid false positives
+          var potentialContent = match[0];
+          var isLikelyUrl = potentialContent.includes("http") || 
+                           potentialContent.includes("://") || 
+                           potentialContent.includes("/") ||
+                           (potentialContent.includes(".") && potentialContent.includes("/"));
+          
+          if (!isLikelyUrl) {
+            // Verify this isn't a valid object with comma by checking context
+            var followingText = jsonText.substring(match.index + match[0].length - 1);
+            var nextNonWhitespace = followingText.match(/\S/);
+            
+            // If the next non-whitespace character isn't a comma or closing brace/bracket, we have a missing comma
+            if (nextNonWhitespace && nextNonWhitespace[0] !== ',' && nextNonWhitespace[0] !== '}' && nextNonWhitespace[0] !== ']') {
+              matches.push({
+                index: match.index + match[0].length - 1, // Position right after the value
+                type: 'property-property',
+                before: match[1],
+                after: '"' + followingText.split('"')[1] + '"', // Get the next property name
+                contextStart: Math.max(0, match.index - 10),
+                contextEnd: Math.min(jsonText.length, match.index + match[0].length + 20)
+              });
+            }
+          }
         }
       }
       

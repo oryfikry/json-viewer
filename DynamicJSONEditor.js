@@ -97,6 +97,84 @@
       this.render();
       this.onUpdate(this.data);
     } catch (e) {
+      // First, search for specific syntax errors that are common
+
+      // 1. Unexpected character after string value (e.g., "text_label": "Attractions & Tours",dff)
+      var unexpectedAfterStringRegex = /"[^"]*"([^,\[\]\{\}\s\n":][^,\[\]\{\}\n]*)/g;
+      var match;
+      var foundSyntaxError = false;
+      
+      while ((match = unexpectedAfterStringRegex.exec(jsonText)) !== null) {
+        // Make sure it's not inside another string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match (accounting for the opening quote),
+        // then this is a valid string followed by invalid characters
+        if ((quoteCount % 2) === 0) {
+          // Get the position right after the closing quote where the error starts
+          var closingQuotePos = match.index + match[0].indexOf('"', 1) + 1;
+          var errorPos = closingQuotePos;
+          
+          // Calculate line and column for the error
+          var textBeforeError = jsonText.substring(0, errorPos);
+          var lines = textBeforeError.split('\n');
+          var line = lines.length - 1;
+          var column = errorPos - (textBeforeError.lastIndexOf('\n') + 1);
+          if (textBeforeError.lastIndexOf('\n') === -1) {
+            column = errorPos; // Handle case when error is on the first line
+          }
+          
+          // Get more context around the error
+          var lineStart = textBeforeError.lastIndexOf('\n') + 1;
+          if (lineStart === -1) lineStart = 0;
+          
+          var lineEnd = jsonText.indexOf('\n', errorPos);
+          if (lineEnd === -1) lineEnd = jsonText.length;
+          
+          var errorLineContent = jsonText.substring(lineStart, lineEnd);
+          
+          // Construct detailed error message
+          var errorTitle = "Unexpected character after string value";
+          var errorMessage = "Invalid JSON: " + errorTitle + "\n";
+          errorMessage += "At line " + (line + 1) + ", column " + (column + 1) + "\n\n";
+          
+          // Add context for the error
+          var startContextLine = Math.max(0, line - 2);
+          var endContextLine = Math.min(jsonText.split('\n').length - 1, line + 2);
+          var contextLines = [];
+          
+          for (var i = startContextLine; i <= endContextLine; i++) {
+            var prefix = (i === line) ? "► " : "  ";
+            var lineNum = (i + 1).toString().padStart(3, ' ');
+            var lineContent = jsonText.split('\n')[i] || '';
+            
+            if (i === line) {
+              // Add a marker pointing to the error
+              var markPosition = column;
+              var marker = " ".repeat(prefix.length + lineNum.length + 2 + markPosition) + "↑";
+              contextLines.push(prefix + lineNum + ": " + lineContent);
+              contextLines.push(marker);
+            } else {
+              contextLines.push(prefix + lineNum + ": " + lineContent);
+            }
+          }
+          
+          errorMessage += contextLines.join('\n') + "\n\n";
+          errorMessage += "Suggestion: Remove the invalid characters after the string value.";
+          
+          // Display error in feedback element
+          this.feedbackElement.innerHTML = errorMessage.replace(/\n/g, '<br>');
+          this.feedbackElement.className = "alert alert-danger";
+          foundSyntaxError = true;
+          break;
+        }
+      }
+      
+      if (foundSyntaxError) {
+        return;
+      }
+      
       // Check for specific errors first
       var trailingCommaInfo = detectTrailingCommaInText(jsonText);
       if (trailingCommaInfo) {
@@ -191,6 +269,48 @@
             // Search for the unexpected token
             var token = tokenMatch[1].replace(/['"\\]/g, '');
             position = jsonText.indexOf(token);
+            
+            // If we haven't found the position yet, check for common error pattern:
+            // like a property value followed by unexpected chars (e.g. "value",abc)
+            if (position === -1 || !jsonText.substring(position - 1, position + token.length + 1).includes(token)) {
+              // Look for unexpected characters after quoted string values in field values
+              // Improved regex that better handles typos after quoted strings
+              var unexpectedCharRegex = /"[^"]*"([^,\[\]\{\}\s"\n][^,\[\]\{\}\n]*)/g;
+              var match;
+              while ((match = unexpectedCharRegex.exec(jsonText)) !== null) {
+                // Found unexpected characters after a quoted string
+                var matchStr = match[0];
+                var quoteEndPos = matchStr.indexOf('"', 1) + 1; // Find the closing quote position (+1 to point after it)
+                if (quoteEndPos > 0 && quoteEndPos < matchStr.length) {
+                  // Get position of the first unexpected character after the closing quote
+                  position = match.index + quoteEndPos;
+                  break;
+                }
+              }
+              
+              // If still not found, try a more general approach
+              if (position === -1) {
+                var jsonLines = jsonText.split('\n');
+                for (var i = 0; i < jsonLines.length; i++) {
+                  var line = jsonLines[i];
+                  // Look for a line with a quoted string followed by unexpected chars
+                  var lineMatch = line.match(/"[^"]*"([^,\[\]\{\}\s"][^,\[\]\{\}]*)/);
+                  if (lineMatch) {
+                    var linePosition = line.indexOf('"') + 1;
+                    var closingQuotePos = line.indexOf('"', linePosition) + 1;
+                    if (closingQuotePos > 0 && closingQuotePos < line.length) {
+                      // Calculate the global position
+                      var beforeLines = jsonLines.slice(0, i).join('\n');
+                      if (i > 0) beforeLines += '\n'; // Add newline if not the first line
+                      position = beforeLines.length + closingQuotePos;
+                      line = i;
+                      column = closingQuotePos;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
           }
           
           if (position !== -1) {
@@ -1008,10 +1128,46 @@
           codeMirrorInstance.removeLineClass(i, 'background', 'error-line');
         }
         
-        // Check for specific common errors
+        // First check for unexpected characters after string values
+        // (e.g., "text_label": "Attractions & Tours",dff)
+        var unexpectedAfterStringRegex = /"[^"]*"([^,\[\]\{\}\s\n":][^,\[\]\{\}\n]*)/g;
+        var match;
         var errorInfo = null;
         
-        // Check for trailing commas
+        while ((match = unexpectedAfterStringRegex.exec(jsonText)) !== null) {
+          // Make sure it's not inside another string
+          var beforeMatch = jsonText.substring(0, match.index);
+          var quoteCount = (beforeMatch.match(/"/g) || []).length;
+          
+          // If we have an even number of quotes before this match (accounting for the opening quote),
+          // then this is a valid string followed by invalid characters
+          if ((quoteCount % 2) === 0) {
+            // Get the position right after the closing quote where the error starts
+            var closingQuotePos = match.index + match[0].indexOf('"', 1) + 1;
+            
+            // Calculate line and column for the error
+            var textBeforeError = jsonText.substring(0, closingQuotePos);
+            var lines = textBeforeError.split('\n');
+            var line = lines.length - 1;
+            var column = closingQuotePos - (textBeforeError.lastIndexOf('\n') + 1);
+            if (textBeforeError.lastIndexOf('\n') === -1) {
+              column = closingQuotePos; // Handle case when error is on the first line
+            }
+            
+            errorInfo = {
+              line: line,
+              column: column,
+              type: 'unexpected-chars',
+              message: 'Unexpected characters after string value'
+            };
+            
+            highlightAndReportError(errorInfo, 'Unexpected characters after string value', 
+              'Remove the invalid characters after the string.');
+            return null;
+          }
+        }
+        
+        // Check for other specific common errors
         errorInfo = detectTrailingComma(jsonText);
         if (errorInfo) {
           highlightAndReportError(errorInfo, 'Trailing comma detected', 
@@ -1022,8 +1178,48 @@
         // Check for missing commas
         errorInfo = detectMissingComma(jsonText);
         if (errorInfo) {
+          if (errorInfo.type === 'objects-in-array') {
+            highlightAndReportError(errorInfo, 'Missing comma between objects in array', 
+              'JSON requires commas between objects in an array. Add a comma after the closing brace of the first object.');
+            return null;
+          }
+          
           highlightAndReportError(errorInfo, 'Missing comma detected', 
             'JSON requires commas between array elements or object properties. Add a comma after this item.');
+          return null;
+        }
+        
+        // Check for comma issues between objects
+        errorInfo = detectObjectCommaIssues(jsonText);
+        if (errorInfo) {
+          if (errorInfo.type === 'missing') {
+            highlightAndReportError(errorInfo, 'Missing comma between objects', 
+              errorInfo.lineBreak ? 
+              'JSON requires commas between objects in an array. Add a comma at the end of this line before the next object.' :
+              'JSON requires commas between objects in an array. Add a comma after the closing brace.');
+          } else if (errorInfo.type === 'extra') {
+            highlightAndReportError(errorInfo, 'Extra comma between objects', 
+              'Remove the extra comma between objects.');
+          }
+          return null;
+        }
+        
+        // Check for comma issues with braces and brackets
+        errorInfo = detectBraceBracketCommaIssues(jsonText);
+        if (errorInfo) {
+          if (errorInfo.type === 'missing-after-open') {
+            highlightAndReportError(errorInfo, 'Missing comma after opening bracket/brace', 
+              'JSON requires commas between elements in an array/object. Add a comma after the opening bracket/brace.');
+          } else if (errorInfo.type === 'missing-before-close') {
+            highlightAndReportError(errorInfo, 'Missing comma before closing bracket/brace', 
+              'JSON requires commas between elements in an array/object. Add a comma before the closing bracket/brace.');
+          } else if (errorInfo.type === 'extra-after-open') {
+            highlightAndReportError(errorInfo, 'Extra comma after opening bracket/brace', 
+              'Remove the extra comma after the opening bracket/brace.');
+          } else if (errorInfo.type === 'extra-before-close') {
+            highlightAndReportError(errorInfo, 'Extra comma before closing bracket/brace', 
+              'Remove the extra comma before the closing bracket/brace.');
+          }
           return null;
         }
         
@@ -1099,13 +1295,55 @@
               // Search for the unexpected token
               var token = tokenMatch[1].replace(/['"\\]/g, '');
               position = jsonText.indexOf(token);
+              
+              // If we haven't found the position yet, check for common error pattern:
+              // like a property value followed by unexpected chars (e.g. "value",abc)
+              if (position === -1 || !jsonText.substring(position - 1, position + token.length + 1).includes(token)) {
+                // Look for unexpected characters after quoted string values in field values
+                // Improved regex that better handles typos after quoted strings
+                var unexpectedCharRegex = /"[^"]*"([^,\[\]\{\}\s"\n][^,\[\]\{\}\n]*)/g;
+                var match;
+                while ((match = unexpectedCharRegex.exec(jsonText)) !== null) {
+                  // Found unexpected characters after a quoted string
+                  var matchStr = match[0];
+                  var quoteEndPos = matchStr.indexOf('"', 1) + 1; // Find the closing quote position (+1 to point after it)
+                  if (quoteEndPos > 0 && quoteEndPos < matchStr.length) {
+                    // Get position of the first unexpected character after the closing quote
+                    position = match.index + quoteEndPos;
+                    break;
+                  }
+                }
+                
+                // If still not found, try a more general approach
+                if (position === -1) {
+                  var jsonLines = jsonText.split('\n');
+                  for (var i = 0; i < jsonLines.length; i++) {
+                    var line = jsonLines[i];
+                    // Look for a line with a quoted string followed by unexpected chars
+                    var lineMatch = line.match(/"[^"]*"([^,\[\]\{\}\s"][^,\[\]\{\}]*)/);
+                    if (lineMatch) {
+                      var linePosition = line.indexOf('"') + 1;
+                      var closingQuotePos = line.indexOf('"', linePosition) + 1;
+                      if (closingQuotePos > 0 && closingQuotePos < line.length) {
+                        // Calculate the global position
+                        var beforeLines = jsonLines.slice(0, i).join('\n');
+                        if (i > 0) beforeLines += '\n'; // Add newline if not the first line
+                        position = beforeLines.length + closingQuotePos;
+                        line = i;
+                        column = closingQuotePos;
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
             }
             
             if (position !== -1) {
               // Calculate line and column
               var lines = jsonText.substring(0, position).split('\n');
-              line = lines.length - 1;
-              column = lines[line].length;
+              line = lines.length;
+              column = lines[lines.length - 1].length + 1;
             }
           }
         }
@@ -1149,25 +1387,41 @@
         // Mark the entire property name
         var propLength = errorInfo.value ? errorInfo.value.length : 1;
         markEnd = { line: line, ch: column + propLength };
-      } else if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property') {
-        // For missing comma after bracket or between properties, mark the position where the comma should be
+      } else if (errorInfo.type === 'unexpected-chars') {
+        // For unexpected characters after a string, mark all the unexpected text
+        // Find the position of the next comma, closing brace, or end of line
+        var lineText = codeMirrorInstance.getLine(line);
+        var nextDelimiter = lineText.substring(column).search(/[,\[\]\{\}]/);
+        if (nextDelimiter > 0) {
+          markEnd = { line: line, ch: column + nextDelimiter };
+        } else {
+          markEnd = { line: line, ch: lineLength };
+        }
+      } else if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property' || 
+                 errorInfo.type === 'missing' || errorInfo.type === 'extra') {
+        // For missing comma errors, mark where the comma should be
         markEnd = { line: line, ch: column + 1 };
         
         // If this is a missing comma at a line break, also highlight the next line
         if (errorInfo.lineBreak && line + 1 < codeMirrorInstance.lineCount()) {
           codeMirrorInstance.addLineClass(line + 1, 'background', 'error-line');
         }
-      } else if (errorInfo.type === 'array-closing') {
-        // For missing comma after array closing bracket
-        markStart = { line: line, ch: column };
+      } else if (errorInfo.type === 'objects-in-array') {
+        // For missing comma between objects in an array, mark where the comma should be
+        // and potentially include the whitespace/newline
         markEnd = { line: line, ch: column + 1 };
         
-        // If there's a line break, highlight both lines to show where comma should go
+        // If this is at a line break, also mark the next line
         if (errorInfo.lineBreak && line + 1 < codeMirrorInstance.lineCount()) {
-          codeMirrorInstance.addLineClass(line + 1, 'background', 'error-line');
+          // Add a second marker for the beginning of the next line
+          var nextLine = line + 1;
+          var nextLineStart = { line: nextLine, ch: 0 };
+          var nextLineEnd = { line: nextLine, ch: 1 };
+          codeMirrorInstance.markText(nextLineStart, nextLineEnd, { className: 'error-location-secondary' });
+          codeMirrorInstance.addLineClass(nextLine, 'background', 'error-line-secondary');
         }
       } else {
-        // Default to marking a small section
+        // Default catch-all - mark a small section
         markEnd = { line: line, ch: Math.min(lineLength, column + 3) };
       }
       
@@ -1240,6 +1494,19 @@
           } else if (errorInfo.type === 'bracket' || errorInfo.type === 'property-property') {
             // For missing comma errors, mark where the comma should be
             errorPart = '<span class="error-marker">' + errorPart + '</span>';
+          } else if (errorInfo.type === 'unexpected-chars') {
+            // For unexpected characters, highlight everything after the quote
+            var quoteEndIndex = lineContent.indexOf('"', column - 10 > 0 ? column - 10 : 0);
+            if (quoteEndIndex >= 0 && quoteEndIndex < column) {
+              before = lineContent.substring(0, quoteEndIndex + 1); // Include the closing quote
+              errorPart = '<span class="error-marker">' + lineContent.substring(quoteEndIndex + 1, quoteEndIndex + 10) + '</span>';
+              after = lineContent.substring(quoteEndIndex + 10);
+              // Adjust position of the marker to point right after the quote
+              spacesBeforeError = ' '.repeat(prefix.length + lineNum.length + 2 + quoteEndIndex + 1);
+              markerSymbol = '↑';
+            } else {
+              errorPart = '<span class="error-marker">' + errorPart + '</span>';
+            }
           } else {
             errorPart = '<span class="error-marker">' + errorPart + '</span>';
           }
@@ -1267,6 +1534,12 @@
           } else if (errorInfo.type === 'array-closing') {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol + ' Missing comma after array');
+          } else if (errorInfo.type === 'unexpected-chars') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Unexpected characters after string');
+          } else if (errorInfo.type === 'objects-in-array') {
+            contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
+                              spacesBeforeError + markerSymbol + ' Missing comma between objects in array');
           } else {
             contextLines.push(' '.repeat(prefix.length) + ' '.repeat(lineNum.length) + '  ' + 
                               spacesBeforeError + markerSymbol);
@@ -1297,6 +1570,8 @@
         } else if (errorInfo.type === 'array-closing') {
           detailedError += '\nYou need to add a comma after the empty array (]) and before the "' + 
                           errorInfo.after.replace(/^"([^"]+)".*$/, '$1') + '" property.';
+        } else if (errorInfo.type === 'objects-in-array') {
+          detailedError += '\nYou need to add a comma between the two objects in the array.';
         } else if (errorTitle.includes('Missing comma')) {
           detailedError += '\nYou need to add a comma between this property and the next one.';
         } else if (errorTitle.includes('Trailing comma')) {
@@ -1368,12 +1643,46 @@
       // Add pattern for missing comma after array/object closing brackets followed by another property
       var bracketMissingComma = /(\]|\})\s*(?:\r?\n|\r|\s)*("[^"]*":)/g;
       
+      // NEW: Pattern for missing comma between complete objects in arrays (matches the example case)
+      // This pattern looks for a closing object brace "}" followed by an opening object brace "{"
+      var objectsInArrayPattern = /\}(\s*(?:\r?\n|\r|\s)*)\{/g;
+      
       // Special pattern for missing comma after array closing bracket - matches the exact example case
       var arrayClosingMissingComma = /"items"\s*:\s*\[\s*\]\s*(?:\r?\n|\r|\s)+("(?:sortOrder|[^"]+)"\s*:)/g;
       
       // Find potential missing commas
       var matches = [];
       var match;
+      
+      // NEW: Check for missing commas between objects in arrays
+      while ((match = objectsInArrayPattern.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          // Check the outer context to ensure this is between array elements
+          // Look back before the closing brace for array context
+          var contextBefore = jsonText.substring(Math.max(0, match.index - 200), match.index);
+          var hasOpeningBracket = contextBefore.lastIndexOf('[') > contextBefore.lastIndexOf('{');
+          
+          // Look ahead after the opening brace for array context
+          var contextAfter = jsonText.substring(match.index + 1, Math.min(jsonText.length, match.index + 200));
+          var hasClosingBracket = contextAfter.indexOf(']') > -1;
+          
+          // If this appears to be inside an array (based on surrounding context)
+          if (hasOpeningBracket || hasClosingBracket) {
+            matches.push({
+              index: match.index + 1, // Position right after the closing brace
+              type: 'objects-in-array',
+              whitespace: match[1],
+              lineBreak: match[1].includes('\n'),
+              priority: 20  // Give highest priority to this pattern
+            });
+          }
+        }
+      }
       
       // Check for missing commas in objects
       while ((match = objectMissingComma.exec(jsonText)) !== null) {
@@ -1476,6 +1785,19 @@
           nextLineContent = jsonText.substring(lineEnd + 1, nextLineEnd);
         }
         
+        // For specific error types with higher specificity
+        if (firstMatch.type === 'objects-in-array') {
+          return {
+            line: line,
+            column: column,
+            type: 'objects-in-array',
+            lineBreak: firstMatch.lineBreak,
+            errorLineContent: errorLineContent,
+            nextLineContent: nextLineContent,
+            priority: firstMatch.priority
+          };
+        }
+        
         return {
           line: line,
           column: column,
@@ -1489,6 +1811,241 @@
             Math.max(0, lineStart - 50), 
             Math.min(jsonText.length, lineEnd + 100)
           )
+        };
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect comma issues specifically between JSON objects in arrays
+    function detectObjectCommaIssues(jsonText) {
+      // Pattern for consecutive objects without comma: }{ (missing comma)
+      var missingObjectComma = /\}\s*\{/g;
+      
+      // Pattern for extra comma between objects or after last object
+      var extraObjectComma = /\},\s*\}/g;
+      
+      // Pattern for objects across line breaks without comma
+      var missingCommaAcrossLines = /\}\s*(?:\r?\n|\r)\s*\{/g;
+      
+      // Find potential issues
+      var matches = [];
+      var match;
+      
+      // Check for missing commas between objects
+      while ((match = missingObjectComma.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + 1, // Position right after the first }
+            type: 'missing'
+          });
+        }
+      }
+      
+      // Check for missing commas between objects across line breaks
+      while ((match = missingCommaAcrossLines.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + 1, // Position right after the first }
+            type: 'missing',
+            lineBreak: true
+          });
+        }
+      }
+      
+      // Check for extra commas between objects
+      while ((match = extraObjectComma.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + 1, // Position of the comma
+            type: 'extra'
+          });
+        }
+      }
+      
+      if (matches.length > 0) {
+        // Find the first occurrence
+        var firstMatch = matches.reduce(function(min, current) {
+          return current.index < min.index ? current : min;
+        }, matches[0]);
+        
+        // Calculate line and column for the comma issue
+        var textBeforeIssue = jsonText.substring(0, firstMatch.index);
+        var lines = textBeforeIssue.split('\n');
+        var line = lines.length - 1;
+        var column = lines[line].length;
+        
+        // Get more context around the error
+        var lineStart = textBeforeIssue.lastIndexOf('\n') + 1;
+        if (lineStart === 0) lineStart = 0;
+        
+        var lineEnd = jsonText.indexOf('\n', firstMatch.index);
+        if (lineEnd === -1) lineEnd = jsonText.length;
+        
+        var errorLineContent = jsonText.substring(lineStart, lineEnd);
+        
+        // Get the next line content if it's a line break issue
+        var nextLineContent = "";
+        if (firstMatch.lineBreak && lineEnd < jsonText.length) {
+          var nextLineEnd = jsonText.indexOf('\n', lineEnd + 1);
+          if (nextLineEnd === -1) nextLineEnd = jsonText.length;
+          nextLineContent = jsonText.substring(lineEnd + 1, nextLineEnd);
+        }
+        
+        return {
+          line: line,
+          column: column,
+          type: firstMatch.type,
+          lineBreak: firstMatch.lineBreak || false,
+          errorLineContent: errorLineContent,
+          nextLineContent: nextLineContent
+        };
+      }
+      
+      return null;
+    }
+    
+    // Helper function to detect comma issues with braces and brackets
+    function detectBraceBracketCommaIssues(jsonText) {
+      // Pattern for missing comma after opening bracket/brace: [{ or {{
+      var missingAfterOpen = /(\[|\{)\s*(\[|\{)/g;
+      
+      // Pattern for missing comma before closing bracket/brace: }] or ]}
+      var missingBeforeClose = /(\}|\])\s*(\}|\])/g;
+      
+      // Pattern for extra comma after opening bracket/brace: [, or {,
+      var extraAfterOpen = /(\[|\{)\s*,\s*(\}|\])/g;
+      
+      // Pattern for extra comma before closing bracket/brace: ,} or ,]
+      var extraBeforeClose = /,\s*(\}|\])/g;
+      
+      // Find potential issues
+      var matches = [];
+      var match;
+      
+      // Check for missing comma after opening bracket/brace
+      while ((match = missingAfterOpen.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + match[1].length, // Position right after the opening bracket/brace
+            type: 'missing-after-open',
+            before: match[1],
+            after: match[2],
+            fullMatch: match[0]
+          });
+        }
+      }
+      
+      // Check for missing comma before closing bracket/brace
+      while ((match = missingBeforeClose.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index, // Position of the first closing bracket/brace
+            type: 'missing-before-close',
+            before: match[1],
+            after: match[2],
+            fullMatch: match[0]
+          });
+        }
+      }
+      
+      // Check for extra comma after opening bracket/brace
+      while ((match = extraAfterOpen.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index + match[1].length, // Position right after the opening bracket/brace
+            type: 'extra-after-open',
+            before: match[1],
+            after: match[2],
+            fullMatch: match[0]
+          });
+        }
+      }
+      
+      // Check for extra comma before closing bracket/brace
+      while ((match = extraBeforeClose.exec(jsonText)) !== null) {
+        // Check that this isn't inside a string
+        var beforeMatch = jsonText.substring(0, match.index);
+        var quoteCount = (beforeMatch.match(/"/g) || []).length;
+        
+        // If we have an even number of quotes before this match, it's not inside a string
+        if (quoteCount % 2 === 0) {
+          matches.push({
+            index: match.index, // Position of the comma
+            type: 'extra-before-close',
+            before: ',',
+            after: match[1],
+            fullMatch: match[0]
+          });
+        }
+      }
+      
+      if (matches.length > 0) {
+        // Find the first occurrence
+        var firstMatch = matches.reduce(function(min, current) {
+          return current.index < min.index ? current : min;
+        }, matches[0]);
+        
+        // Calculate line and column for the comma issue
+        var textBeforeIssue = jsonText.substring(0, firstMatch.index);
+        var lines = textBeforeIssue.split('\n');
+        var line = lines.length - 1;
+        var column = lines[line].length;
+        
+        // Get more context around the error
+        var lineStart = textBeforeIssue.lastIndexOf('\n') + 1;
+        if (lineStart === 0) lineStart = 0;
+        
+        var lineEnd = jsonText.indexOf('\n', firstMatch.index);
+        if (lineEnd === -1) lineEnd = jsonText.length;
+        
+        var errorLineContent = jsonText.substring(lineStart, lineEnd);
+        
+        // For missing comma between braces, adjust the position to point to the first closing brace
+        if (firstMatch.type === 'missing-before-close' && firstMatch.before === '}') {
+          // For missing comma between braces, we want to point to the first closing brace
+          // The index is already at the position of the first closing brace
+          // No need to adjust the column
+        }
+        
+        return {
+          line: line,
+          column: column,
+          type: firstMatch.type,
+          before: firstMatch.before,
+          after: firstMatch.after,
+          errorLineContent: errorLineContent,
+          fullMatch: firstMatch.fullMatch
         };
       }
       

@@ -44,8 +44,8 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6 px-4">
-        <div class="card mt-4">
+      <div class="col-md-6">
+        <div class="card">
           <div class="card-header">
             <h5 class="mb-0 p-1"><i class="bi bi-tree"></i> JSON Tree View</h5>
           </div>
@@ -162,7 +162,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Define the data as a JavaScript object to avoid JSON parsing issues
-      const cleanData = [
+      let result = [
         {
           "text_label": "Attractions & Tours",
           "url": "https://uat-mflgenterprise-online.globaltix.com/experiences/discover",
@@ -259,7 +259,8 @@
       ];
       
       // Make sure sampleData is available
-      window.sampleData = cleanData;
+      let cleanData = result === undefined || result === null ? [] : result;
+      window.sampleData = cleanData || [];
 
       // Initialize CodeMirror for JSON editor with the clean data
       var codeMirror = CodeMirror(document.getElementById('jsonInputContainer'), {

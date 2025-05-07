@@ -64,6 +64,9 @@
       }
     };
     
+    // Persistent collapse state for each node
+    this.collapseState = {};
+    
     // For custom input element (like CodeMirror)
     this.getValue = options.getValue || function() { 
       return this.inputElement.value; 
@@ -421,21 +424,22 @@
       var rootNode = document.createElement("div");
       rootNode.className = "tree-node tree-root";
       
+      // Generate unique key for this node
+      var nodeKey = path.join('.') || 'root';
+      if (self.collapseState[nodeKey]) {
+        rootNode.classList.add('collapsed');
+      }
+      
       // Create the first line with the opening brace
       var firstLine = document.createElement("div");
       firstLine.className = "node-line";
       
       var toggleIcon = document.createElement("span");
       toggleIcon.className = "toggle-icon";
-      toggleIcon.textContent = "▼";
+      toggleIcon.textContent = self.collapseState[nodeKey] ? "►" : "▼";
       toggleIcon.addEventListener("click", function() {
-        if (rootNode.classList.contains("collapsed")) {
-          rootNode.classList.remove("collapsed");
-          toggleIcon.textContent = "▼";
-        } else {
-          rootNode.classList.add("collapsed");
-          toggleIcon.textContent = "►";
-        }
+        self.collapseState[nodeKey] = !self.collapseState[nodeKey];
+        self.render();
       });
       
       firstLine.appendChild(toggleIcon);
@@ -564,6 +568,12 @@
     var nodeContainer = document.createElement("div");
     nodeContainer.className = "tree-node";
     
+    // Generate unique key for this node
+    var nodeKey = path.join('.') || 'root';
+    if (self.collapseState[nodeKey]) {
+      nodeContainer.classList.add('collapsed');
+    }
+    
     var nodeLine = document.createElement("div");
     nodeLine.className = "node-line";
     
@@ -634,16 +644,11 @@
       // Toggle icon for expandable nodes
       var toggleIcon = document.createElement("span");
       toggleIcon.className = "toggle-icon";
-      toggleIcon.textContent = "▼";
+      toggleIcon.textContent = self.collapseState[nodeKey] ? "►" : "▼";
       toggleIcon.addEventListener("click", function(e) {
         e.stopPropagation();
-        if (nodeContainer.classList.contains("collapsed")) {
-          nodeContainer.classList.remove("collapsed");
-          toggleIcon.textContent = "▼";
-        } else {
-          nodeContainer.classList.add("collapsed");
-          toggleIcon.textContent = "►";
-        }
+        self.collapseState[nodeKey] = !self.collapseState[nodeKey];
+        self.render();
       });
       
       nodeLine.insertBefore(toggleIcon, nodeLine.firstChild);

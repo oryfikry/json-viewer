@@ -577,13 +577,11 @@
     deleteIcon.style.fontWeight = "bold";
     
     nodeLine.addEventListener("mouseenter", function() {
-      deleteIcon.style.visibility = "visible";
-      if (keyDeleteIcon) keyDeleteIcon.style.visibility = "visible";
+      if (path.length === 1) deleteIcon.style.visibility = "visible";
     });
     
     nodeLine.addEventListener("mouseleave", function() {
       deleteIcon.style.visibility = "hidden";
-      if (keyDeleteIcon) keyDeleteIcon.style.visibility = "hidden";
     });
     
     deleteIcon.addEventListener("click", function(e) {
@@ -609,38 +607,6 @@
       keyContainer.style.display = "inline-flex";
       keyContainer.style.alignItems = "center";
       
-      // Delete icon for the key
-      keyDeleteIcon = document.createElement("span");
-      keyDeleteIcon.className = "toggle-icon";
-      keyDeleteIcon.innerHTML = "×";
-      keyDeleteIcon.title = "Delete Key";
-      keyDeleteIcon.style.visibility = "hidden";
-      keyDeleteIcon.style.color = "#f00";
-      keyDeleteIcon.style.fontWeight = "bold";
-      keyDeleteIcon.style.marginRight = "3px";
-      keyDeleteIcon.style.fontSize = "0.8em";
-      
-      keyDeleteIcon.addEventListener("click", function(e) {
-        e.stopPropagation();
-        if (confirm("Delete this key and its value?")) {
-          var parent = self.getParentByPath(path);
-          var prop = path[path.length - 1];
-          if (Array.isArray(parent)) {
-            parent.splice(prop, 1);
-          } else {
-            delete parent[prop];
-          }
-          self.update();
-        }
-      });
-      
-      // Only show the key delete icon for object properties, not array items
-      if (!Array.isArray(self.getParentByPath(path))) {
-        keyContainer.appendChild(keyDeleteIcon);
-      } else {
-        keyDeleteIcon = null;
-      }
-      
       var keySpan = document.createElement("span");
       keySpan.className = "key";
       keySpan.textContent = Array.isArray(self.getParentByPath(path)) ? "" : "\"" + key + "\"";
@@ -652,6 +618,11 @@
       colonSpan.className = "colon";
       colonSpan.textContent = Array.isArray(self.getParentByPath(path)) ? "" : " : ";
       nodeLine.appendChild(colonSpan);
+    }
+    
+    // Only show delete icon for direct children of the root
+    if (path.length === 1) {
+      nodeLine.appendChild(deleteIcon);
     }
     
     // Handle different types of values

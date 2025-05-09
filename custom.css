@@ -1,7 +1,7 @@
 /* Tree View Styles */
 .json-tree-view {
   font-family: monospace;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.5;
   padding: 8px;
   background-color: #fff;
@@ -77,7 +77,6 @@
 
 .node-line {
   position: relative;
-  white-space: nowrap;
 }
 
 .node-line:hover {
@@ -434,4 +433,7 @@
   line-height: 1.4;
   display: inline-block;
   margin: 0 2px;
+}
+.CodeMirror-code{
+  font-size: 12px;
 }

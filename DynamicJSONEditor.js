@@ -484,12 +484,29 @@
             if (typeof lastItem === "object" && lastItem !== null) {
               // Deep clone the object
               newItem = JSON.parse(JSON.stringify(lastItem));
-              // Clear any ID fields or similar identifiers
-              if (newItem.id) newItem.id = "";
-              if (newItem.ID) newItem.ID = "";
-              if (newItem.Id) newItem.Id = "";
-              if (newItem.name) newItem.name = "";
-              if (newItem.Name) newItem.Name = "";
+              
+              // Create a new object with the same structure but with default values
+              if (Array.isArray(newItem)) {
+                // If it's an array, keep the structure but empty it
+                newItem = [];
+              } else {
+                // For objects, create a new object with default property
+                var defaultItem = {};
+                
+                // Copy the structure format from the last item
+                for (var key in newItem) {
+                  if (typeof newItem[key] === "object" && newItem[key] !== null) {
+                    defaultItem[key] = Array.isArray(newItem[key]) ? [] : {};
+                  } else {
+                    // Use the same type but with empty/default value
+                    if (typeof newItem[key] === "string") defaultItem[key] = "";
+                    else if (typeof newItem[key] === "number") defaultItem[key] = 0;
+                    else if (typeof newItem[key] === "boolean") defaultItem[key] = false;
+                    else defaultItem[key] = null;
+                  }
+                }
+                newItem = defaultItem;
+              }
             } else {
               // For primitive values, use the same type but empty/zero value
               if (typeof lastItem === "string") newItem = "";
@@ -501,41 +518,172 @@
           arr.push(newItem);
           self.update();
         } else {
-          var promptKey = prompt("Enter new property name:");
-          if (promptKey) {
-            var obj = self.getDataByPath(path);
-            if (obj.hasOwnProperty(promptKey)) {
-              alert("Key already exists");
+          // For objects, show a simple dialog with common field types
+          var dialog = document.createElement('div');
+          dialog.className = 'add-property-dialog';
+          dialog.style.position = 'fixed';
+          dialog.style.top = '50%';
+          dialog.style.left = '50%';
+          dialog.style.transform = 'translate(-50%, -50%)';
+          dialog.style.backgroundColor = 'white';
+          dialog.style.padding = '20px';
+          dialog.style.borderRadius = '8px';
+          dialog.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+          dialog.style.zIndex = '1000';
+
+          var title = document.createElement('h4');
+          title.textContent = 'Add New Property';
+          title.style.marginBottom = '15px';
+          dialog.appendChild(title);
+
+          var form = document.createElement('div');
+          form.style.display = 'flex';
+          form.style.flexDirection = 'column';
+          form.style.gap = '10px';
+
+          // Property name input
+          var nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.placeholder = 'Property name';
+          nameInput.style.padding = '8px';
+          nameInput.style.border = '1px solid #ddd';
+          nameInput.style.borderRadius = '4px';
+          form.appendChild(nameInput);
+
+          // Type selector
+          var typeSelect = document.createElement('select');
+          typeSelect.style.padding = '8px';
+          typeSelect.style.border = '1px solid #ddd';
+          typeSelect.style.borderRadius = '4px';
+          
+          var types = [
+            { value: 'string', label: 'Text (String)' },
+            { value: 'number', label: 'Number' },
+            { value: 'boolean', label: 'Yes/No (Boolean)' },
+            { value: 'object', label: 'Object' },
+            { value: 'array', label: 'Array' }
+          ];
+
+          types.forEach(type => {
+            var option = document.createElement('option');
+            option.value = type.value;
+            option.textContent = type.label;
+            typeSelect.appendChild(option);
+          });
+          form.appendChild(typeSelect);
+
+          // Default value input (shown only for string and number)
+          var valueInput = document.createElement('input');
+          valueInput.type = 'text';
+          valueInput.placeholder = 'Default value';
+          valueInput.style.padding = '8px';
+          valueInput.style.border = '1px solid #ddd';
+          valueInput.style.borderRadius = '4px';
+          valueInput.style.display = 'none';
+          form.appendChild(valueInput);
+
+          // Update value input based on type selection
+          typeSelect.addEventListener('change', function() {
+            if (this.value === 'string' || this.value === 'number') {
+              valueInput.style.display = 'block';
+              valueInput.type = this.value === 'number' ? 'number' : 'text';
+            } else {
+              valueInput.style.display = 'none';
+            }
+          });
+
+          dialog.appendChild(form);
+
+          // Buttons
+          var buttons = document.createElement('div');
+          buttons.style.display = 'flex';
+          buttons.style.justifyContent = 'flex-end';
+          buttons.style.gap = '10px';
+          buttons.style.marginTop = '20px';
+
+          var cancelBtn = document.createElement('button');
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.style.padding = '8px 16px';
+          cancelBtn.style.border = '1px solid #ddd';
+          cancelBtn.style.borderRadius = '4px';
+          cancelBtn.style.backgroundColor = '#f8f9fa';
+          cancelBtn.style.cursor = 'pointer';
+
+          var addBtn = document.createElement('button');
+          addBtn.textContent = 'Add';
+          addBtn.style.padding = '8px 16px';
+          addBtn.style.border = 'none';
+          addBtn.style.borderRadius = '4px';
+          addBtn.style.backgroundColor = '#007bff';
+          addBtn.style.color = 'white';
+          addBtn.style.cursor = 'pointer';
+
+          buttons.appendChild(cancelBtn);
+          buttons.appendChild(addBtn);
+          dialog.appendChild(buttons);
+
+          // Add overlay
+          var overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0';
+          overlay.style.left = '0';
+          overlay.style.right = '0';
+          overlay.style.bottom = '0';
+          overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '999';
+
+          document.body.appendChild(overlay);
+          document.body.appendChild(dialog);
+
+          // Handle cancel
+          cancelBtn.onclick = function() {
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+          };
+
+          // Handle add
+          addBtn.onclick = function() {
+            var propName = nameInput.value.trim();
+            if (!propName) {
+              alert('Please enter a property name');
               return;
             }
-            
-            // Check if there are other properties to copy structure from
-            var keys = Object.keys(obj);
-            if (keys.length > 0) {
-              var lastProp = obj[keys[keys.length - 1]];
-              var newValue = "";
-              if (typeof lastProp === "object" && lastProp !== null) {
-                // Deep clone the object
-                newValue = JSON.parse(JSON.stringify(lastProp));
-                // Clear any ID fields or similar identifiers
-                if (newValue.id) newValue.id = "";
-                if (newValue.ID) newValue.ID = "";
-                if (newValue.Id) newValue.Id = "";
-                if (newValue.name) newValue.name = "";
-                if (newValue.Name) newValue.Name = "";
-              } else {
-                // For primitive values, use the same type but empty/zero value
-                if (typeof lastProp === "string") newValue = "";
-                else if (typeof lastProp === "number") newValue = 0;
-                else if (typeof lastProp === "boolean") newValue = false;
-                else newValue = null;
-              }
-              obj[promptKey] = newValue;
-            } else {
-              obj[promptKey] = "";
+
+            if (data.hasOwnProperty(propName)) {
+              alert('Property already exists');
+              return;
             }
+
+            var type = typeSelect.value;
+            var value;
+
+            switch (type) {
+              case 'string':
+                value = valueInput.value;
+                break;
+              case 'number':
+                value = valueInput.value ? Number(valueInput.value) : 0;
+                break;
+              case 'boolean':
+                value = false;
+                break;
+              case 'object':
+                value = {};
+                break;
+              case 'array':
+                value = [];
+                break;
+            }
+
+            data[propName] = value;
             self.update();
-          }
+
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+          };
+
+          // Focus the name input
+          nameInput.focus();
         }
       });
       
@@ -711,40 +859,172 @@
           data.push(newItem);
           self.update();
         } else {
-          var promptKey = prompt("Enter new property name:");
-          if (promptKey) {
-            if (data.hasOwnProperty(promptKey)) {
-              alert("Key already exists");
+          // For objects, show a simple dialog with common field types
+          var dialog = document.createElement('div');
+          dialog.className = 'add-property-dialog';
+          dialog.style.position = 'fixed';
+          dialog.style.top = '50%';
+          dialog.style.left = '50%';
+          dialog.style.transform = 'translate(-50%, -50%)';
+          dialog.style.backgroundColor = 'white';
+          dialog.style.padding = '20px';
+          dialog.style.borderRadius = '8px';
+          dialog.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+          dialog.style.zIndex = '1000';
+
+          var title = document.createElement('h4');
+          title.textContent = 'Add New Property';
+          title.style.marginBottom = '15px';
+          dialog.appendChild(title);
+
+          var form = document.createElement('div');
+          form.style.display = 'flex';
+          form.style.flexDirection = 'column';
+          form.style.gap = '10px';
+
+          // Property name input
+          var nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.placeholder = 'Property name';
+          nameInput.style.padding = '8px';
+          nameInput.style.border = '1px solid #ddd';
+          nameInput.style.borderRadius = '4px';
+          form.appendChild(nameInput);
+
+          // Type selector
+          var typeSelect = document.createElement('select');
+          typeSelect.style.padding = '8px';
+          typeSelect.style.border = '1px solid #ddd';
+          typeSelect.style.borderRadius = '4px';
+          
+          var types = [
+            { value: 'string', label: 'Text (String)' },
+            { value: 'number', label: 'Number' },
+            { value: 'boolean', label: 'Yes/No (Boolean)' },
+            { value: 'object', label: 'Object' },
+            { value: 'array', label: 'Array' }
+          ];
+
+          types.forEach(type => {
+            var option = document.createElement('option');
+            option.value = type.value;
+            option.textContent = type.label;
+            typeSelect.appendChild(option);
+          });
+          form.appendChild(typeSelect);
+
+          // Default value input (shown only for string and number)
+          var valueInput = document.createElement('input');
+          valueInput.type = 'text';
+          valueInput.placeholder = 'Default value';
+          valueInput.style.padding = '8px';
+          valueInput.style.border = '1px solid #ddd';
+          valueInput.style.borderRadius = '4px';
+          valueInput.style.display = 'none';
+          form.appendChild(valueInput);
+
+          // Update value input based on type selection
+          typeSelect.addEventListener('change', function() {
+            if (this.value === 'string' || this.value === 'number') {
+              valueInput.style.display = 'block';
+              valueInput.type = this.value === 'number' ? 'number' : 'text';
+            } else {
+              valueInput.style.display = 'none';
+            }
+          });
+
+          dialog.appendChild(form);
+
+          // Buttons
+          var buttons = document.createElement('div');
+          buttons.style.display = 'flex';
+          buttons.style.justifyContent = 'flex-end';
+          buttons.style.gap = '10px';
+          buttons.style.marginTop = '20px';
+
+          var cancelBtn = document.createElement('button');
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.style.padding = '8px 16px';
+          cancelBtn.style.border = '1px solid #ddd';
+          cancelBtn.style.borderRadius = '4px';
+          cancelBtn.style.backgroundColor = '#f8f9fa';
+          cancelBtn.style.cursor = 'pointer';
+
+          var addBtn = document.createElement('button');
+          addBtn.textContent = 'Add';
+          addBtn.style.padding = '8px 16px';
+          addBtn.style.border = 'none';
+          addBtn.style.borderRadius = '4px';
+          addBtn.style.backgroundColor = '#007bff';
+          addBtn.style.color = 'white';
+          addBtn.style.cursor = 'pointer';
+
+          buttons.appendChild(cancelBtn);
+          buttons.appendChild(addBtn);
+          dialog.appendChild(buttons);
+
+          // Add overlay
+          var overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0';
+          overlay.style.left = '0';
+          overlay.style.right = '0';
+          overlay.style.bottom = '0';
+          overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '999';
+
+          document.body.appendChild(overlay);
+          document.body.appendChild(dialog);
+
+          // Handle cancel
+          cancelBtn.onclick = function() {
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+          };
+
+          // Handle add
+          addBtn.onclick = function() {
+            var propName = nameInput.value.trim();
+            if (!propName) {
+              alert('Please enter a property name');
               return;
             }
-            
-            // Check if there are other properties to copy structure from
-            var keys = Object.keys(data);
-            if (keys.length > 0) {
-              var lastProp = data[keys[keys.length - 1]];
-              var newValue = "";
-              if (typeof lastProp === "object" && lastProp !== null) {
-                // Deep clone the object
-                newValue = JSON.parse(JSON.stringify(lastProp));
-                // Clear any ID fields or similar identifiers
-                if (newValue.id) newValue.id = "";
-                if (newValue.ID) newValue.ID = "";
-                if (newValue.Id) newValue.Id = "";
-                if (newValue.name) newValue.name = "";
-                if (newValue.Name) newValue.Name = "";
-              } else {
-                // For primitive values, use the same type but empty/zero value
-                if (typeof lastProp === "string") newValue = "";
-                else if (typeof lastProp === "number") newValue = 0;
-                else if (typeof lastProp === "boolean") newValue = false;
-                else newValue = null;
-              }
-              data[promptKey] = newValue;
-            } else {
-              data[promptKey] = "";
+
+            if (data.hasOwnProperty(propName)) {
+              alert('Property already exists');
+              return;
             }
+
+            var type = typeSelect.value;
+            var value;
+
+            switch (type) {
+              case 'string':
+                value = valueInput.value;
+                break;
+              case 'number':
+                value = valueInput.value ? Number(valueInput.value) : 0;
+                break;
+              case 'boolean':
+                value = false;
+                break;
+              case 'object':
+                value = {};
+                break;
+              case 'array':
+                value = [];
+                break;
+            }
+
+            data[propName] = value;
             self.update();
-          }
+
+            document.body.removeChild(overlay);
+            document.body.removeChild(dialog);
+          };
+
+          // Focus the name input
+          nameInput.focus();
         }
       });
       

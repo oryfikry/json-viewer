@@ -550,7 +550,26 @@
           nameInput.style.borderRadius = '4px';
           form.appendChild(nameInput);
 
-          // Type selector
+          // Selection type (Normal/Template)
+          var selectionType = document.createElement('select');
+          selectionType.style.padding = '8px';
+          selectionType.style.border = '1px solid #ddd';
+          selectionType.style.borderRadius = '4px';
+          
+          var selectionTypes = [
+            { value: 'normal', label: 'Normal' },
+            { value: 'template', label: 'Template' }
+          ];
+
+          selectionTypes.forEach(type => {
+            var option = document.createElement('option');
+            option.value = type.value;
+            option.textContent = type.label;
+            selectionType.appendChild(option);
+          });
+          form.appendChild(selectionType);
+
+          // Type selector (for normal selection)
           var typeSelect = document.createElement('select');
           typeSelect.style.padding = '8px';
           typeSelect.style.border = '1px solid #ddd';
@@ -572,6 +591,24 @@
           });
           form.appendChild(typeSelect);
 
+          // Template selector (for template selection)
+          var templateSelect = document.createElement('select');
+          templateSelect.style.padding = '8px';
+          templateSelect.style.border = '1px solid #ddd';
+          templateSelect.style.borderRadius = '4px';
+          templateSelect.style.display = 'none';
+
+          // Add templates from the existing data structure
+          if (self.templates) {
+            Object.keys(self.templates).forEach(key => {
+              var option = document.createElement('option');
+              option.value = key;
+              option.textContent = self.templates[key].name || key;
+              templateSelect.appendChild(option);
+            });
+          }
+          form.appendChild(templateSelect);
+
           // Default value input (shown only for string and number)
           var valueInput = document.createElement('input');
           valueInput.type = 'text';
@@ -581,6 +618,19 @@
           valueInput.style.borderRadius = '4px';
           valueInput.style.display = 'none';
           form.appendChild(valueInput);
+
+          // Update form based on selection type
+          selectionType.addEventListener('change', function() {
+            if (this.value === 'normal') {
+              typeSelect.style.display = 'block';
+              templateSelect.style.display = 'none';
+              valueInput.style.display = typeSelect.value === 'string' || typeSelect.value === 'number' ? 'block' : 'none';
+            } else {
+              typeSelect.style.display = 'none';
+              templateSelect.style.display = 'block';
+              valueInput.style.display = 'none';
+            }
+          });
 
           // Update value input based on type selection
           typeSelect.addEventListener('change', function() {
@@ -612,7 +662,7 @@
           var addBtn = document.createElement('button');
           addBtn.textContent = 'Add';
           addBtn.style.padding = '8px 16px';
-          addBtn.style.border = 'none';
+          addBtn.style.border = '1px solid #007bff';
           addBtn.style.borderRadius = '4px';
           addBtn.style.backgroundColor = '#007bff';
           addBtn.style.color = 'white';
@@ -654,25 +704,42 @@
               return;
             }
 
-            var type = typeSelect.value;
             var value;
-
-            switch (type) {
-              case 'string':
-                value = valueInput.value;
-                break;
-              case 'number':
-                value = valueInput.value ? Number(valueInput.value) : 0;
-                break;
-              case 'boolean':
-                value = false;
-                break;
-              case 'object':
+            if (selectionType.value === 'normal') {
+              var type = typeSelect.value;
+              switch (type) {
+                case 'string':
+                  value = valueInput.value;
+                  break;
+                case 'number':
+                  value = valueInput.value ? Number(valueInput.value) : 0;
+                  break;
+                case 'boolean':
+                  value = false;
+                  break;
+                case 'object':
+                  value = {};
+                  break;
+                case 'array':
+                  value = [];
+                  break;
+              }
+            } else {
+              // Use template
+              var templateKey = templateSelect.value;
+              if (self.templates && self.templates[templateKey]) {
+                value = JSON.parse(JSON.stringify(self.templates[templateKey].template));
+                // Replace any default values with "sample A", "sample B", etc.
+                if (typeof value === 'object' && value !== null) {
+                  Object.keys(value).forEach(key => {
+                    if (typeof value[key] === 'string' && value[key] === '') {
+                      value[key] = 'sample ' + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                    }
+                  });
+                }
+              } else {
                 value = {};
-                break;
-              case 'array':
-                value = [];
-                break;
+              }
             }
 
             data[propName] = value;
@@ -891,7 +958,26 @@
           nameInput.style.borderRadius = '4px';
           form.appendChild(nameInput);
 
-          // Type selector
+          // Selection type (Normal/Template)
+          var selectionType = document.createElement('select');
+          selectionType.style.padding = '8px';
+          selectionType.style.border = '1px solid #ddd';
+          selectionType.style.borderRadius = '4px';
+          
+          var selectionTypes = [
+            { value: 'normal', label: 'Normal' },
+            { value: 'template', label: 'Template' }
+          ];
+
+          selectionTypes.forEach(type => {
+            var option = document.createElement('option');
+            option.value = type.value;
+            option.textContent = type.label;
+            selectionType.appendChild(option);
+          });
+          form.appendChild(selectionType);
+
+          // Type selector (for normal selection)
           var typeSelect = document.createElement('select');
           typeSelect.style.padding = '8px';
           typeSelect.style.border = '1px solid #ddd';
@@ -913,6 +999,24 @@
           });
           form.appendChild(typeSelect);
 
+          // Template selector (for template selection)
+          var templateSelect = document.createElement('select');
+          templateSelect.style.padding = '8px';
+          templateSelect.style.border = '1px solid #ddd';
+          templateSelect.style.borderRadius = '4px';
+          templateSelect.style.display = 'none';
+
+          // Add templates from the existing data structure
+          if (self.templates) {
+            Object.keys(self.templates).forEach(key => {
+              var option = document.createElement('option');
+              option.value = key;
+              option.textContent = self.templates[key].name || key;
+              templateSelect.appendChild(option);
+            });
+          }
+          form.appendChild(templateSelect);
+
           // Default value input (shown only for string and number)
           var valueInput = document.createElement('input');
           valueInput.type = 'text';
@@ -922,6 +1026,19 @@
           valueInput.style.borderRadius = '4px';
           valueInput.style.display = 'none';
           form.appendChild(valueInput);
+
+          // Update form based on selection type
+          selectionType.addEventListener('change', function() {
+            if (this.value === 'normal') {
+              typeSelect.style.display = 'block';
+              templateSelect.style.display = 'none';
+              valueInput.style.display = typeSelect.value === 'string' || typeSelect.value === 'number' ? 'block' : 'none';
+            } else {
+              typeSelect.style.display = 'none';
+              templateSelect.style.display = 'block';
+              valueInput.style.display = 'none';
+            }
+          });
 
           // Update value input based on type selection
           typeSelect.addEventListener('change', function() {
@@ -953,7 +1070,7 @@
           var addBtn = document.createElement('button');
           addBtn.textContent = 'Add';
           addBtn.style.padding = '8px 16px';
-          addBtn.style.border = 'none';
+          addBtn.style.border = '1px solid #007bff';
           addBtn.style.borderRadius = '4px';
           addBtn.style.backgroundColor = '#007bff';
           addBtn.style.color = 'white';
@@ -995,25 +1112,42 @@
               return;
             }
 
-            var type = typeSelect.value;
             var value;
-
-            switch (type) {
-              case 'string':
-                value = valueInput.value;
-                break;
-              case 'number':
-                value = valueInput.value ? Number(valueInput.value) : 0;
-                break;
-              case 'boolean':
-                value = false;
-                break;
-              case 'object':
+            if (selectionType.value === 'normal') {
+              var type = typeSelect.value;
+              switch (type) {
+                case 'string':
+                  value = valueInput.value;
+                  break;
+                case 'number':
+                  value = valueInput.value ? Number(valueInput.value) : 0;
+                  break;
+                case 'boolean':
+                  value = false;
+                  break;
+                case 'object':
+                  value = {};
+                  break;
+                case 'array':
+                  value = [];
+                  break;
+              }
+            } else {
+              // Use template
+              var templateKey = templateSelect.value;
+              if (self.templates && self.templates[templateKey]) {
+                value = JSON.parse(JSON.stringify(self.templates[templateKey].template));
+                // Replace any default values with "sample A", "sample B", etc.
+                if (typeof value === 'object' && value !== null) {
+                  Object.keys(value).forEach(key => {
+                    if (typeof value[key] === 'string' && value[key] === '') {
+                      value[key] = 'sample ' + String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                    }
+                  });
+                }
+              } else {
                 value = {};
-                break;
-              case 'array':
-                value = [];
-                break;
+              }
             }
 
             data[propName] = value;
@@ -1540,7 +1674,7 @@
           // If we have a position but no line/column, calculate them
           var lines = jsonText.substring(0, position).split('\n');
           line = lines.length - 1;
-          column = lines[line].length;
+          column = lines[line].length + 1;
         } else {
           // Try to find the error position by checking for SyntaxError details
           var tokenMatch = e.message.match(/Unexpected token\s+([^\s]+)/i);
